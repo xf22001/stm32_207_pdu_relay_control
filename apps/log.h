@@ -6,7 +6,7 @@
  *   文件名称：log.h
  *   创 建 者：肖飞
  *   创建日期：2020年05月14日 星期四 14时09分56秒
- *   修改日期：2020年07月13日 星期一 13时50分14秒
+ *   修改日期：2020年08月06日 星期四 10时32分34秒
  *   描    述：
  *
  *================================================================*/
@@ -17,6 +17,9 @@ extern "C"
 {
 #endif
 
+#include "cmsis_os.h"
+#include "app_platform.h"
+#include "main.h"
 #include "os_utils.h"
 #include "probe_tool.h"
 #include "uart_debug.h"
@@ -63,6 +66,11 @@ extern "C"
 } while(0)
 #endif
 
-#define debug(fmt, ...) _printf("[%s:%s:%d] " fmt, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
+//#define debug(fmt, ...) _printf("[%s:%s:%d] " fmt, __FILE__, __func__, __LINE__, ## __VA_ARGS__)
+#define debug(fmt, ...) do { \
+	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_RESET); \
+	_printf("[%s:%s:%d] " fmt, __FILE__, __func__, __LINE__, ## __VA_ARGS__); \
+	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET); \
+} while(0)
 
 #endif //_LOG_H

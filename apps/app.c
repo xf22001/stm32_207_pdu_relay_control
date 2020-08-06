@@ -28,6 +28,66 @@
 
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim3;
+extern ADC_HandleTypeDef hadc1;
+
+#define ADC_VALUES_GROUPS 10
+typedef struct {
+	uint16_t value1;
+	uint16_t value2;
+} adc1_values_t;
+
+static adc1_values_t adc1_values_data[ADC_VALUES_GROUPS];
+
+static void start_adc1(void)
+{
+	uint32_t length = ADC_VALUES_GROUPS * (sizeof(adc1_values_t) / sizeof(uint16_t));
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_values_data, length);
+}
+
+typedef struct {
+	uint16_t value : 12;
+	uint16_t unused : 4;
+} adc1_value_t;
+
+typedef union {
+	adc1_value_t s;
+	uint16_t v;
+} u_adc1_value_t;
+
+static uint16_t get_adc_channel_value(uint16_t value)
+{
+	u_adc1_value_t u_adc1_value;
+
+	u_adc1_value.v = value;
+
+	return u_adc1_value.s.value;
+}
+
+static adc1_values_t *get_adc1_value(void)
+{
+	static adc1_values_t ret;
+	int i;
+
+	ret.value1 = 0;
+	ret.value2= 0;
+
+	for(i = 0; i < ADC_VALUES_GROUPS; i++) {
+		adc1_values_t *adc1_values = adc1_values_data + i;
+
+		ret.value1 += get_adc_channel_value(adc1_values->value1);
+		ret.value2 += get_adc_channel_value(adc1_values->value2);
+	}
+
+	if(ADC_VALUES_GROUPS != 0) {
+		ret.value1 /= ADC_VALUES_GROUPS;
+		ret.value2 /= ADC_VALUES_GROUPS;
+	} else {
+		ret.value1 = 0;
+		ret.value2 = 0;
+	}
+
+	return &ret;
+}
 
 void app(void const *argument)
 {
@@ -53,6 +113,8 @@ void app(void const *argument)
 	debug("===========================================start app============================================\n");
 
 	update_relay_board_id();
+
+	start_adc1();
 
 	//{
 	//	uart_info_t *uart_info = get_or_alloc_uart_info(&huart3);
@@ -81,7 +143,14 @@ void app(void const *argument)
 	}
 
 	while(1) {
+		adc1_values_t *adc1_values;
+
 		osDelay(1000);
+
+		adc1_values = get_adc1_value();
+
+		debug("adc1_values->value1:%d\n", adc1_values->value1);
+		debug("adc1_values->value2:%d\n", adc1_values->value2);
 	}
 }
 
