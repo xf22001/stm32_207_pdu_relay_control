@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月07日 星期五 12时57分51秒
+ *   修改日期：2020年08月07日 星期五 13时19分25秒
  *   描    述：
  *
  *================================================================*/
@@ -50,10 +50,7 @@ static uint8_t relay_board_config = 0x00;
 int relay_board_set_config(uint8_t config)
 {
 	int ret = 0;
-	u_uint8_bits_t *u_uint8_bits = (u_uint8_bits_t *)&relay_board_config;
-
-	debug("set relay_board_config %02x\n", relay_board_config);
-	relay_board_config = config;
+	u_uint8_bits_t *u_uint8_bits = (u_uint8_bits_t *)&config;
 
 	HAL_GPIO_WritePin(kg1_GPIO_Port, kg1_Pin, u_uint8_bits->s.bit0);
 	HAL_GPIO_WritePin(kg12_GPIO_Port, kg12_Pin, u_uint8_bits->s.bit0);
@@ -72,6 +69,9 @@ int relay_board_set_config(uint8_t config)
 
 	HAL_GPIO_WritePin(kg6_GPIO_Port, kg6_Pin, u_uint8_bits->s.bit5);
 	HAL_GPIO_WritePin(kg7_GPIO_Port, kg7_Pin, u_uint8_bits->s.bit5);
+
+	debug("set relay_board_config %02x\n", relay_board_config);
+	relay_board_config = config;
 
 	return ret;
 }
@@ -182,6 +182,12 @@ uint8_t relay_board_get_status(void)
 
 	if(status != relay_board_config) {
 		fault = 1;
+	}
+
+	if(fault == 0) {
+		HAL_GPIO_WritePin(led_fault_GPIO_Port, led_fault_Pin, GPIO_PIN_SET);
+	} else {
+		HAL_GPIO_WritePin(led_fault_GPIO_Port, led_fault_Pin, GPIO_PIN_RESET);
 	}
 
 	return fault;

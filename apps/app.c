@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年08月07日 星期五 13时03分49秒
+ *   修改日期：2020年08月07日 星期五 13时26分24秒
  *   描    述：
  *
  *================================================================*/
@@ -96,7 +96,9 @@ void app(void const *argument)
 {
 	channel_info_config_t *channel_info_config = get_channel_info_config(0);
 
-	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET); 
+	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(led_fault_GPIO_Port, led_fault_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(led_can_GPIO_Port, led_can_Pin, GPIO_PIN_SET);
 
 	if(channel_info_config == NULL) {
 		app_panic();
