@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月06日 星期四 10时16分26秒
+ *   修改日期：2020年08月07日 星期五 11时26分41秒
  *   描    述：
  *
  *================================================================*/
@@ -19,13 +19,8 @@
 
 static uint8_t relay_board_id = 0xff;
 
-typedef struct {
-	uint8_t bit0 : 1;
-	uint8_t bit1 : 1;
-} relay_board_id_t;
-
 typedef union {
-	relay_board_id_t s;
+	uint8_bits_t s;
 	uint8_t v;
 } u_relay_board_id_t;
 
@@ -37,6 +32,8 @@ void update_relay_board_id(void)
 
 	u_relay_board_id.s.bit0 = (HAL_GPIO_ReadPin(d1_GPIO_Port, d1_Pin) == GPIO_PIN_RESET) ? 1 : 0;
 	u_relay_board_id.s.bit1 = (HAL_GPIO_ReadPin(d2_GPIO_Port, d2_Pin) == GPIO_PIN_RESET) ? 1 : 0;
+	u_relay_board_id.s.bit2 = (HAL_GPIO_ReadPin(d4_GPIO_Port, d4_Pin) == GPIO_PIN_RESET) ? 1 : 0;
+	u_relay_board_id.s.bit3 = (HAL_GPIO_ReadPin(d8_GPIO_Port, d8_Pin) == GPIO_PIN_RESET) ? 1 : 0;
 
 	relay_board_id = u_relay_board_id.v;
 
