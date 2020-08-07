@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年08月07日 星期五 11时38分59秒
+ *   修改日期：2020年08月07日 星期五 13时03分49秒
  *   描    述：
  *
  *================================================================*/
@@ -68,24 +68,26 @@ static adc1_values_t *get_adc1_value(void)
 {
 	static adc1_values_t ret;
 	int i;
-
-	ret.value1 = 0;
-	ret.value2= 0;
+	uint32_t value1 = 0;
+	uint32_t value2 = 0;
 
 	for(i = 0; i < ADC_VALUES_GROUPS; i++) {
 		adc1_values_t *adc1_values = adc1_values_data + i;
 
-		ret.value1 += get_adc_channel_value(adc1_values->value1);
-		ret.value2 += get_adc_channel_value(adc1_values->value2);
+		value1 += get_adc_channel_value(adc1_values->value1);
+		value2 += get_adc_channel_value(adc1_values->value2);
 	}
 
 	if(ADC_VALUES_GROUPS != 0) {
-		ret.value1 /= ADC_VALUES_GROUPS;
-		ret.value2 /= ADC_VALUES_GROUPS;
+		value1 /= ADC_VALUES_GROUPS;
+		value2 /= ADC_VALUES_GROUPS;
 	} else {
-		ret.value1 = 0;
-		ret.value2 = 0;
+		value1 = 0;
+		value2 = 0;
 	}
+
+	ret.value1 = value1;
+	ret.value2 = value2;
 
 	return &ret;
 }

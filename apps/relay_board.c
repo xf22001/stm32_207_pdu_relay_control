@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月07日 星期五 11时26分41秒
+ *   修改日期：2020年08月07日 星期五 12时57分51秒
  *   描    述：
  *
  *================================================================*/
@@ -86,8 +86,8 @@ int relay_board_set_config(uint8_t config)
 
 uint8_t relay_board_get_config(void)
 {
-	uint8_t status;
-	u_uint8_bits_t *u_uint8_bits = (u_uint8_bits_t *)&status;
+	uint8_t config;
+	u_uint8_bits_t *u_uint8_bits = (u_uint8_bits_t *)&config;
 	GPIO_PinState state0;
 	GPIO_PinState state1;
 	u_uint8_bits->v = 0;
@@ -95,38 +95,40 @@ uint8_t relay_board_get_config(void)
 	state0 = HAL_GPIO_ReadPin(fb1_GPIO_Port, fb1_Pin);
 	state1 = HAL_GPIO_ReadPin(fb12_GPIO_Port, fb12_Pin);
 	set_config_status_bits(0, state0, state1);
-	debug("bit0 state0:%d state1:%d\n", state0, state1);
+	//debug("bit0 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb2_GPIO_Port, fb2_Pin);
 	state1 = HAL_GPIO_ReadPin(fb11_GPIO_Port, fb11_Pin);
 	set_config_status_bits(1, state0, state1);
-	debug("bit1 state0:%d state1:%d\n", state0, state1);
+	//debug("bit1 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb3_GPIO_Port, fb3_Pin);
 	state1 = HAL_GPIO_ReadPin(fb10_GPIO_Port, fb10_Pin);
 	set_config_status_bits(2, state0, state1);
-	debug("bit2 state0:%d state1:%d\n", state0, state1);
+	//debug("bit2 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb4_GPIO_Port, fb4_Pin);
 	state1 = HAL_GPIO_ReadPin(fb9_GPIO_Port, fb9_Pin);
 	set_config_status_bits(3, state0, state1);
-	debug("bit3 state0:%d state1:%d\n", state0, state1);
+	//debug("bit3 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb5_GPIO_Port, fb5_Pin);
 	state1 = HAL_GPIO_ReadPin(fb8_GPIO_Port, fb8_Pin);
 	set_config_status_bits(4, state0, state1);
-	debug("bit4 state0:%d state1:%d\n", state0, state1);
+	//debug("bit4 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb6_GPIO_Port, fb6_Pin);
 	state1 = HAL_GPIO_ReadPin(fb7_GPIO_Port, fb7_Pin);
 	set_config_status_bits(5, state0, state1);
-	debug("bit5 state0:%d state1:%d\n", state0, state1);
+	//debug("bit5 state0:%d state1:%d\n", state0, state1);
+	
+	debug("get config %02x\n", config);
 
-	if(status != relay_board_config) {
-		debug("status %02x, relay_board_config:%02x\n", status, relay_board_config);
+	if(config != relay_board_config) {
+		debug("config %02x, relay_board_config:%02x\n", config, relay_board_config);
 	}
 
-	return status;
+	return config;
 }
 
 #define set_status_bits(index, state0, state1) do { \
@@ -149,32 +151,32 @@ uint8_t relay_board_get_status(void)
 	state0 = HAL_GPIO_ReadPin(fb1_GPIO_Port, fb1_Pin);
 	state1 = HAL_GPIO_ReadPin(fb12_GPIO_Port, fb12_Pin);
 	set_status_bits(0, state0, state1);
-	debug("bit0 state0:%d state1:%d\n", state0, state1);
+	//debug("bit0 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb2_GPIO_Port, fb2_Pin);
 	state1 = HAL_GPIO_ReadPin(fb11_GPIO_Port, fb11_Pin);
 	set_status_bits(1, state0, state1);
-	debug("bit1 state0:%d state1:%d\n", state0, state1);
+	//debug("bit1 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb3_GPIO_Port, fb3_Pin);
 	state1 = HAL_GPIO_ReadPin(fb10_GPIO_Port, fb10_Pin);
 	set_status_bits(2, state0, state1);
-	debug("bit2 state0:%d state1:%d\n", state0, state1);
+	//debug("bit2 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb4_GPIO_Port, fb4_Pin);
 	state1 = HAL_GPIO_ReadPin(fb9_GPIO_Port, fb9_Pin);
 	set_status_bits(3, state0, state1);
-	debug("bit3 state0:%d state1:%d\n", state0, state1);
+	//debug("bit3 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb5_GPIO_Port, fb5_Pin);
 	state1 = HAL_GPIO_ReadPin(fb8_GPIO_Port, fb8_Pin);
 	set_status_bits(4, state0, state1);
-	debug("bit4 state0:%d state1:%d\n", state0, state1);
+	//debug("bit4 state0:%d state1:%d\n", state0, state1);
 
 	state0 = HAL_GPIO_ReadPin(fb6_GPIO_Port, fb6_Pin);
 	state1 = HAL_GPIO_ReadPin(fb7_GPIO_Port, fb7_Pin);
 	set_status_bits(5, state0, state1);
-	debug("bit5 state0:%d state1:%d\n", state0, state1);
+	//debug("bit5 state0:%d state1:%d\n", state0, state1);
 
 	debug("get status %02x\n", status);
 
