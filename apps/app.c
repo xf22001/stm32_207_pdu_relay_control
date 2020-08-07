@@ -6,13 +6,14 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年08月06日 星期四 09时39分29秒
+ *   修改日期：2020年08月07日 星期五 11时03分20秒
  *   描    述：
  *
  *================================================================*/
 #include "app.h"
 #include "app_platform.h"
 #include "cmsis_os.h"
+#include "main.h"
 
 #include "os_utils.h"
 
@@ -92,6 +93,8 @@ static adc1_values_t *get_adc1_value(void)
 void app(void const *argument)
 {
 	channel_info_config_t *channel_info_config = get_channel_info_config(0);
+
+	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET); 
 
 	if(channel_info_config == NULL) {
 		app_panic();

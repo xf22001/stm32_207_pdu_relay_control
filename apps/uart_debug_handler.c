@@ -6,7 +6,7 @@
  *   文件名称：uart_debug_handler.c
  *   创 建 者：肖飞
  *   创建日期：2020年05月13日 星期三 13时18分00秒
- *   修改日期：2020年07月06日 星期一 17时31分43秒
+ *   修改日期：2020年08月07日 星期五 10时39分02秒
  *   描    述：
  *
  *================================================================*/
@@ -20,7 +20,7 @@
 
 static void fn1(char *arguments)
 {
-	_printf("%s:%s:%d arguments:\'%s\'\n", __FILE__, __func__, __LINE__, arguments);
+	debug("%s:%s:%d arguments:\'%s\'\n", __FILE__, __func__, __LINE__, arguments);
 }
 
 static void fn2(char *arguments)
@@ -31,27 +31,34 @@ static void fn3(char *arguments)
 {
 }
 
+void get_mem_info(size_t *total_size, size_t *max_size, size_t *count);
+
 static void fn5(char *arguments)
 {
 	int size = xPortGetFreeHeapSize();
 	uint8_t *os_thread_info;
 	uint8_t is_app = 0;
 	uint32_t ticks = osKernelSysTick();
+	size_t total_size;
+	size_t max_size;
+	size_t count;
 
 #if defined(USER_APP)
 	is_app = 1;
 #endif
+	get_mem_info(&total_size, &max_size, &count);
 
-	_printf("free heap size:%d\n", size);
-	_printf("current ticks:%lu\n", ticks);
-	_printf("%lu day %lu hour %lu min %lu sec\n",
+	debug("os free heap size:%d\n", size);
+	debug("app heap total_size:%d, max_size:%d, count:%d\n", total_size, max_size, count);
+	debug("current ticks:%lu\n", ticks);
+	debug("%lu day %lu hour %lu min %lu sec\n",
 	        ticks / (1000 * 60 * 60 * 24),//day
 	        (ticks % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),//hour
 	        (ticks % (1000 * 60 * 60)) / (1000 * 60),//min
 	        (ticks % (1000 * 60)) / (1000)//sec
 	       );
 	update_relay_board_id();
-	_printf("relay_board id:%d\n", get_relay_board_id());
+	debug("relay_board id:%d\n", get_relay_board_id());
 
 	if(size < 4 * 1024) {
 		return;
@@ -72,9 +79,9 @@ static void fn5(char *arguments)
 	os_free(os_thread_info);
 
 	if(is_app) {
-		_printf("in app!\n");
+		debug("in app!\n");
 	} else {
-		_printf("in bootloader!\n");
+		debug("in bootloader!\n");
 	}
 }
 
