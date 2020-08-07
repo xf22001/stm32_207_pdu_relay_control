@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年08月06日 星期四 09时37分17秒
+ *   修改日期：2020年08月07日 星期五 12时49分52秒
  *   描    述：
  *
  *================================================================*/
@@ -14,6 +14,7 @@
 
 #include <string.h>
 #include "app.h"
+#include "main.h"
 #include "relay_board.h"
 
 #include "relay_board_command.h"
@@ -564,6 +565,22 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 
 }
 
+static void flicker_can_led(uint8_t live)
+{
+	static uint32_t live_ticks = 0;
+	uint32_t ticks = osKernelSysTick();
+
+	if(live != 0) {
+		live_ticks = ticks;
+	}
+
+	if(ticks - live_ticks >= 30) {
+		HAL_GPIO_WritePin(led_can_GPIO_Port, led_can_Pin, GPIO_PIN_SET);
+	} else {
+		HAL_GPIO_WritePin(led_can_GPIO_Port, led_can_Pin, GPIO_PIN_RESET);
+	}
+}
+
 void task_relay_board_com_request(void const *argument)
 {
 	int ret = 0;
@@ -583,6 +600,7 @@ void task_relay_board_com_request(void const *argument)
 			can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 			u_com_can_tx_id_t *u_com_can_tx_id = (u_com_can_tx_id_t *)&relay_board_com_info->can_tx_msg.ExtId;
 
+			flicker_can_led(0);
 			relay_board_com_request_periodic(relay_board_com_info);
 
 			if(cmd_ctx->state != CAN_COM_STATE_REQUEST) {
@@ -606,6 +624,7 @@ void task_relay_board_com_request(void const *argument)
 
 			can_com_cmd_common->cmd = item->cmd;
 
+			flicker_can_led(1);
 			ret = item->request_callback(relay_board_com_info);
 
 			if(ret != 0) {
@@ -643,6 +662,7 @@ void task_relay_board_com_response(void const *argument)
 	while(1) {
 		u_com_can_rx_id_t *u_com_can_rx_id;
 
+		flicker_can_led(0);
 		ret = can_rx_data(relay_board_com_info->can_info, 1000);
 
 		if(ret != 0) {
@@ -665,6 +685,7 @@ void task_relay_board_com_response(void const *argument)
 			if(can_com_cmd_common->cmd == item->cmd) {
 				//debug("response cmd %d(%s), index:%d\n", item->cmd, get_relay_board_cmd_des(item->cmd), can_com_cmd_common->index);
 
+				flicker_can_led(1);
 				ret = item->response_callback(relay_board_com_info);
 
 				if(ret == 0) {//收到响应

@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年08月07日 星期五 11时21分14秒
+ *   修改日期：2020年08月07日 星期五 11时38分59秒
  *   描    述：
  *
  *================================================================*/
@@ -141,8 +141,8 @@ void app(void const *argument)
 			app_panic();
 		}
 
-		//osThreadCreate(osThread(task_relay_board_com_request), relay_board_com_info);
-		//osThreadCreate(osThread(task_relay_board_com_response), relay_board_com_info);
+		osThreadCreate(osThread(task_relay_board_com_request), relay_board_com_info);
+		osThreadCreate(osThread(task_relay_board_com_response), relay_board_com_info);
 	}
 
 	while(1) {

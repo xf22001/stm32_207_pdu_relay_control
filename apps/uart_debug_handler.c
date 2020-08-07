@@ -6,7 +6,7 @@
  *   文件名称：uart_debug_handler.c
  *   创 建 者：肖飞
  *   创建日期：2020年05月13日 星期三 13时18分00秒
- *   修改日期：2020年08月07日 星期五 10时39分02秒
+ *   修改日期：2020年08月07日 星期五 11时29分56秒
  *   描    述：
  *
  *================================================================*/
@@ -20,7 +20,7 @@
 
 static void fn1(char *arguments)
 {
-	debug("%s:%s:%d arguments:\'%s\'\n", __FILE__, __func__, __LINE__, arguments);
+	debug("arguments:\'%s\'\n", arguments);
 }
 
 static void fn2(char *arguments)
