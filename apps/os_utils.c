@@ -6,7 +6,7 @@
  *   文件名称：os_utils.c
  *   创 建 者：肖飞
  *   创建日期：2019年11月13日 星期三 11时13分17秒
- *   修改日期：2020年08月07日 星期五 11时13分14秒
+ *   修改日期：2020年08月12日 星期三 17时36分22秒
  *   描    述：
  *
  *================================================================*/
@@ -18,6 +18,8 @@
 #include "cmsis_os.h"
 #include "list_utils.h"
 #include "main.h"
+
+#include "log.h"
 
 typedef struct {
 	size_t size;
@@ -33,33 +35,6 @@ typedef struct {
 
 static osMutexId os_utils_mutex = NULL;
 static mem_info_t mem_info;
-
-static void *xmalloc(size_t size)
-{
-	mem_node_info_t *mem_node_info = (mem_node_info_t *)malloc(sizeof(mem_node_info_t) + size);
-
-	if(mem_node_info != NULL) {
-		mem_node_info->size = size;
-		list_add_tail(&mem_node_info->list, &mem_info.mem_info_list);
-		mem_info.size += mem_node_info->size;
-	}
-
-	return (mem_node_info + 1);
-}
-
-static void xfree(void *p)
-{
-	if(p != NULL) {
-		mem_node_info_t *mem_node_info = (mem_node_info_t *)p;
-
-		mem_node_info--;
-
-		list_del(&mem_node_info->list);
-		mem_info.size -= mem_node_info->size;
-
-		free(mem_node_info);
-	}
-}
 
 static int init_os_utils_mutex(void)
 {
@@ -78,14 +53,14 @@ static int init_os_utils_mutex(void)
 	return ret;
 }
 
-void *os_alloc(size_t size)
+static void *xmalloc(size_t size)
 {
-	void *p = NULL;
 	osStatus os_status;
+	mem_node_info_t *mem_node_info;
 
 	if(os_utils_mutex == NULL) {
 		if(init_os_utils_mutex() != 0) {
-			return p;
+			return NULL;
 		}
 	}
 
@@ -94,17 +69,23 @@ void *os_alloc(size_t size)
 	if(os_status != osOK) {
 	}
 
-	p =  xmalloc(size);
+	mem_node_info = (mem_node_info_t *)malloc(sizeof(mem_node_info_t) + size);
+
+	if(mem_node_info != NULL) {
+		mem_node_info->size = size;
+		list_add_tail(&mem_node_info->list, &mem_info.mem_info_list);
+		mem_info.size += mem_node_info->size;
+	}
 
 	os_status = osMutexRelease(os_utils_mutex);
 
 	if(os_status != osOK) {
 	}
 
-	return p;
+	return (mem_node_info != NULL) ? (mem_node_info + 1) : NULL;
 }
 
-void os_free(void *p)
+static void xfree(void *p)
 {
 	osStatus os_status;
 
@@ -119,7 +100,16 @@ void os_free(void *p)
 	if(os_status != osOK) {
 	}
 
-	xfree(p);
+	if(p != NULL) {
+		mem_node_info_t *mem_node_info = (mem_node_info_t *)p;
+
+		mem_node_info--;
+
+		list_del(&mem_node_info->list);
+		mem_info.size -= mem_node_info->size;
+
+		free(mem_node_info);
+	}
 
 	os_status = osMutexRelease(os_utils_mutex);
 
@@ -153,8 +143,9 @@ void get_mem_info(size_t *total_size, size_t *max_size, size_t *count)
 	head = &mem_info.mem_info_list;
 
 	list_for_each_entry(mem_node_info, head, mem_node_info_t, list) {
+		*count += 1;
+
 		if(mem_node_info->size > *max_size) {
-			*count += 1;
 			*max_size = mem_node_info->size;
 		}
 	}
@@ -163,6 +154,20 @@ void get_mem_info(size_t *total_size, size_t *max_size, size_t *count)
 
 	if(os_status != osOK) {
 	}
+}
+
+void *os_alloc(size_t size)
+{
+	void *p;
+
+	p = xmalloc(size);
+
+	return p;
+}
+
+void os_free(void *p)
+{
+	xfree(p);
 }
 
 int log_printf(log_fn_t log_fn, const char *fmt, ...)
