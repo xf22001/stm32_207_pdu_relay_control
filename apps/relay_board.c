@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月07日 星期五 13时19分25秒
+ *   修改日期：2020年08月13日 星期四 09时23分14秒
  *   描    述：
  *
  *================================================================*/
@@ -46,11 +46,13 @@ uint8_t get_relay_board_id(void)
 }
 
 static uint8_t relay_board_config = 0x00;
+static uint32_t relay_board_config_stamp = 0;
 
 int relay_board_set_config(uint8_t config)
 {
 	int ret = 0;
 	u_uint8_bits_t *u_uint8_bits = (u_uint8_bits_t *)&config;
+	uint32_t ticks = osKernelSysTick();
 
 	HAL_GPIO_WritePin(kg1_GPIO_Port, kg1_Pin, u_uint8_bits->s.bit0);
 	HAL_GPIO_WritePin(kg12_GPIO_Port, kg12_Pin, u_uint8_bits->s.bit0);
@@ -72,6 +74,7 @@ int relay_board_set_config(uint8_t config)
 
 	debug("set relay_board_config %02x\n", relay_board_config);
 	relay_board_config = config;
+	relay_board_config_stamp = ticks;
 
 	return ret;
 }
@@ -121,8 +124,6 @@ uint8_t relay_board_get_config(void)
 	state1 = HAL_GPIO_ReadPin(fb7_GPIO_Port, fb7_Pin);
 	set_config_status_bits(5, state0, state1);
 	//debug("bit5 state0:%d state1:%d\n", state0, state1);
-	
-	debug("get config %02x\n", config);
 
 	if(config != relay_board_config) {
 		debug("config %02x, relay_board_config:%02x\n", config, relay_board_config);
@@ -147,6 +148,7 @@ uint8_t relay_board_get_status(void)
 	GPIO_PinState state0;
 	GPIO_PinState state1;
 	u_uint8_bits->v = 0;
+	uint32_t ticks = osKernelSysTick();
 
 	state0 = HAL_GPIO_ReadPin(fb1_GPIO_Port, fb1_Pin);
 	state1 = HAL_GPIO_ReadPin(fb12_GPIO_Port, fb12_Pin);
@@ -181,7 +183,11 @@ uint8_t relay_board_get_status(void)
 	debug("get status %02x\n", status);
 
 	if(status != relay_board_config) {
-		fault = 1;
+		debug("status %02x, relay_board_config:%02x\n", status, relay_board_config);
+
+		if(ticks - relay_board_config_stamp >= 1 * 1000) {
+			fault = 1;
+		}
 	}
 
 	if(fault == 0) {
