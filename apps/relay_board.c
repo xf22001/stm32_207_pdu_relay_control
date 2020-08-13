@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月13日 星期四 09时23分14秒
+ *   修改日期：2020年08月13日 星期四 09时36分10秒
  *   描    述：
  *
  *================================================================*/
@@ -179,8 +179,6 @@ uint8_t relay_board_get_status(void)
 	state1 = HAL_GPIO_ReadPin(fb7_GPIO_Port, fb7_Pin);
 	set_status_bits(5, state0, state1);
 	//debug("bit5 state0:%d state1:%d\n", state0, state1);
-
-	debug("get status %02x\n", status);
 
 	if(status != relay_board_config) {
 		debug("status %02x, relay_board_config:%02x\n", status, relay_board_config);
