@@ -6,7 +6,7 @@
  *   文件名称：uart_debug_handler.c
  *   创 建 者：肖飞
  *   创建日期：2020年05月13日 星期三 13时18分00秒
- *   修改日期：2020年08月07日 星期五 11时29分56秒
+ *   修改日期：2020年08月14日 星期五 09时48分10秒
  *   描    述：
  *
  *================================================================*/
@@ -31,25 +31,24 @@ static void fn3(char *arguments)
 {
 }
 
-void get_mem_info(size_t *total_size, size_t *max_size, size_t *count);
+void get_mem_info(size_t *size, size_t *count, size_t *max_size);
 
 static void fn5(char *arguments)
 {
-	int size = xPortGetFreeHeapSize();
+	size_t size = xPortGetFreeHeapSize();
 	uint8_t *os_thread_info;
 	uint8_t is_app = 0;
 	uint32_t ticks = osKernelSysTick();
-	size_t total_size;
-	size_t max_size;
 	size_t count;
+	size_t max_size;
 
 #if defined(USER_APP)
 	is_app = 1;
 #endif
-	get_mem_info(&total_size, &max_size, &count);
-
 	debug("os free heap size:%d\n", size);
-	debug("app heap total_size:%d, max_size:%d, count:%d\n", total_size, max_size, count);
+
+	get_mem_info(&size, &count, &max_size);
+	debug("app heap size:%d, count:%d, max_size:%d\n", size, count, max_size);
 	debug("current ticks:%lu\n", ticks);
 	debug("%lu day %lu hour %lu min %lu sec\n",
 	        ticks / (1000 * 60 * 60 * 24),//day
@@ -59,10 +58,6 @@ static void fn5(char *arguments)
 	       );
 	update_relay_board_id();
 	debug("relay_board id:%d\n", get_relay_board_id());
-
-	if(size < 4 * 1024) {
-		return;
-	}
 
 	size = 1024;
 

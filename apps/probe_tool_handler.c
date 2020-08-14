@@ -6,7 +6,7 @@
  *   文件名称：probe_tool_handler.c
  *   创 建 者：肖飞
  *   创建日期：2020年03月20日 星期五 12时48分07秒
- *   修改日期：2020年07月06日 星期一 17时32分26秒
+ *   修改日期：2020年08月14日 星期五 09时48分24秒
  *   描    述：
  *
  *================================================================*/
@@ -145,10 +145,6 @@ static void fn5(request_t *request)
 	       );
 	update_relay_board_id();
 	_printf("relay_board id:%d\n", get_relay_board_id());
-
-	if(size < 4 * 1024) {
-		return;
-	}
 
 	size = 1024;
 

@@ -6,7 +6,7 @@
  *   文件名称：os_utils.c
  *   创 建 者：肖飞
  *   创建日期：2019年11月13日 星期三 11时13分17秒
- *   修改日期：2020年08月12日 星期三 17时36分22秒
+ *   修改日期：2020年08月14日 星期五 09时43分23秒
  *   描    述：
  *
  *================================================================*/
@@ -27,27 +27,51 @@ typedef struct {
 } mem_node_info_t;
 
 typedef struct {
+	uint8_t init;
+	osMutexId os_utils_mutex;
 	size_t size;
+	size_t count;
+	size_t max_size;
 	struct list_head mem_info_list;
 } mem_info_t;
 
 #define LOG_BUFFER_SIZE (1024)
 
-static osMutexId os_utils_mutex = NULL;
-static mem_info_t mem_info;
+static mem_info_t mem_info = {
+	.init = 0,
+	.os_utils_mutex = NULL,
+};
 
-static int init_os_utils_mutex(void)
+static int init_mem_info(void)
 {
 	int ret = -1;
 	osMutexDef(os_utils_mutex);
+	osStatus os_status;
 
-	INIT_LIST_HEAD(&mem_info.mem_info_list);
-	mem_info.size = 0;
+	if(mem_info.os_utils_mutex == NULL) {
+		mem_info.os_utils_mutex = osMutexCreate(osMutex(os_utils_mutex));
 
-	os_utils_mutex = osMutexCreate(osMutex(os_utils_mutex));
+		if(mem_info.os_utils_mutex == NULL) {
+			return ret;
+		}
 
-	if(os_utils_mutex != NULL) {
+		os_status = osMutexWait(mem_info.os_utils_mutex, osWaitForever);
+
+		if(os_status != osOK) {
+		}
+
+		mem_info.size = 0;
+		mem_info.count = 0;
+		mem_info.max_size = 0;
+		INIT_LIST_HEAD(&mem_info.mem_info_list);
+
+		mem_info.init = 1;
 		ret = 0;
+
+		os_status = osMutexRelease(mem_info.os_utils_mutex);
+
+		if(os_status != osOK) {
+		}
 	}
 
 	return ret;
@@ -58,13 +82,13 @@ static void *xmalloc(size_t size)
 	osStatus os_status;
 	mem_node_info_t *mem_node_info;
 
-	if(os_utils_mutex == NULL) {
-		if(init_os_utils_mutex() != 0) {
+	if(mem_info.init == 0) {
+		if(init_mem_info() != 0) {
 			return NULL;
 		}
 	}
 
-	os_status = osMutexWait(os_utils_mutex, osWaitForever);
+	os_status = osMutexWait(mem_info.os_utils_mutex, osWaitForever);
 
 	if(os_status != osOK) {
 	}
@@ -72,12 +96,18 @@ static void *xmalloc(size_t size)
 	mem_node_info = (mem_node_info_t *)malloc(sizeof(mem_node_info_t) + size);
 
 	if(mem_node_info != NULL) {
+		mem_info.size += size;
+		mem_info.count += 1;
+
+		if(mem_info.size > mem_info.max_size) {
+			mem_info.max_size = mem_info.size;
+		}
+
 		mem_node_info->size = size;
 		list_add_tail(&mem_node_info->list, &mem_info.mem_info_list);
-		mem_info.size += mem_node_info->size;
 	}
 
-	os_status = osMutexRelease(os_utils_mutex);
+	os_status = osMutexRelease(mem_info.os_utils_mutex);
 
 	if(os_status != osOK) {
 	}
@@ -89,13 +119,13 @@ static void xfree(void *p)
 {
 	osStatus os_status;
 
-	if(os_utils_mutex == NULL) {
-		if(init_os_utils_mutex() != 0) {
+	if(mem_info.init == 0) {
+		if(init_mem_info() != 0) {
 			return;
 		}
 	}
 
-	os_status = osMutexWait(os_utils_mutex, osWaitForever);
+	os_status = osMutexWait(mem_info.os_utils_mutex, osWaitForever);
 
 	if(os_status != osOK) {
 	}
@@ -105,52 +135,50 @@ static void xfree(void *p)
 
 		mem_node_info--;
 
-		list_del(&mem_node_info->list);
 		mem_info.size -= mem_node_info->size;
+		mem_info.count -= 1;
 
+		list_del(&mem_node_info->list);
 		free(mem_node_info);
 	}
 
-	os_status = osMutexRelease(os_utils_mutex);
+	os_status = osMutexRelease(mem_info.os_utils_mutex);
 
 	if(os_status != osOK) {
 	}
 }
 
-void get_mem_info(size_t *total_size, size_t *max_size, size_t *count)
+void get_mem_info(size_t *size, size_t *count, size_t *max_size)
 {
 	osStatus os_status;
 	mem_node_info_t *mem_node_info;
 	struct list_head *head;
 
-	*total_size = 0;
-	*max_size = 0;
+	*size = 0;
 	*count = 0;
+	*max_size = 0;
 
-	if(os_utils_mutex == NULL) {
-		if(init_os_utils_mutex() != 0) {
+	if(mem_info.init == 0) {
+		if(init_mem_info() != 0) {
 			return;
 		}
 	}
 
-	os_status = osMutexWait(os_utils_mutex, osWaitForever);
+	os_status = osMutexWait(mem_info.os_utils_mutex, osWaitForever);
 
 	if(os_status != osOK) {
 	}
 
-	*total_size = mem_info.size;
+	*size = mem_info.size;
+	*count = mem_info.count;
+	*max_size = mem_info.max_size;
 
 	head = &mem_info.mem_info_list;
 
 	list_for_each_entry(mem_node_info, head, mem_node_info_t, list) {
-		*count += 1;
-
-		if(mem_node_info->size > *max_size) {
-			*max_size = mem_node_info->size;
-		}
 	}
 
-	os_status = osMutexRelease(os_utils_mutex);
+	os_status = osMutexRelease(mem_info.os_utils_mutex);
 
 	if(os_status != osOK) {
 	}
