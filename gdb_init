@@ -76,5 +76,23 @@ b set_bms_state
 #		c
 #	end
 
+#b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board_communication.c:672
+#	commands
+#		c
+#	end
+
+b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board.c:40
+	commands
+		p relay_board_id
+		c
+	end
+
+b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board.c:184
+	commands
+		printf "status 0x%x.\n", status
+		printf "relay_board_config 0x%x.\n", relay_board_config
+		c
+	end
+
 monitor reset
 continue

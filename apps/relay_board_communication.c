@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年08月07日 星期五 12时49分52秒
+ *   修改日期：2020年10月16日 星期五 12时53分26秒
  *   描    述：
  *
  *================================================================*/
@@ -369,7 +369,7 @@ static int response_relay_board_heartbeat(relay_board_com_info_t *relay_board_co
 
 static command_item_t command_item_relay_board_heartbeat = {
 	.cmd = RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
-	.request_period = 200,
+	.request_period = 500,
 	.request_callback = request_relay_board_heartbeat,
 	.response_callback = response_relay_board_heartbeat,
 };
@@ -492,7 +492,7 @@ static int response_relay_board_status(relay_board_com_info_t *relay_board_com_i
 
 static command_item_t command_item_relay_board_status = {
 	.cmd = RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
-	.request_period = 200,
+	.request_period = 500,
 	.request_callback = request_relay_board_status,
 	.response_callback = response_relay_board_status,
 };
