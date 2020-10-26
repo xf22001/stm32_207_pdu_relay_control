@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年10月16日 星期五 12时53分26秒
+ *   修改日期：2020年10月26日 星期一 15时54分58秒
  *   描    述：
  *
  *================================================================*/
@@ -468,7 +468,8 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 		relay_board_status_t *relay_board_status = &data_ctx->relay_board_status;
 
 		relay_board_status->config = relay_board_get_config();
-		relay_board_status->fault = relay_board_get_status();
+		relay_board_status->fault.fault = relay_board_get_status();
+		relay_board_status->fault.over_temperature = 0;
 	}
 
 	ret = prepare_request(relay_board_com_info,
