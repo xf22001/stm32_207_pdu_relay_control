@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年10月15日 星期四 14时54分55秒
+ *   修改日期：2020年10月27日 星期二 09时24分32秒
  *   描    述：
  *
  *================================================================*/
@@ -29,68 +29,6 @@
 
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim3;
-extern ADC_HandleTypeDef hadc1;
-
-#define ADC_VALUES_GROUPS 10
-typedef struct {
-	uint16_t value1;
-	uint16_t value2;
-} adc1_values_t;
-
-static adc1_values_t adc1_values_data[ADC_VALUES_GROUPS];
-
-static void start_adc1(void)
-{
-	uint32_t length = ADC_VALUES_GROUPS * (sizeof(adc1_values_t) / sizeof(uint16_t));
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_values_data, length);
-}
-
-typedef struct {
-	uint16_t value : 12;
-	uint16_t unused : 4;
-} adc1_value_t;
-
-typedef union {
-	adc1_value_t s;
-	uint16_t v;
-} u_adc1_value_t;
-
-static uint16_t get_adc_channel_value(uint16_t value)
-{
-	u_adc1_value_t u_adc1_value;
-
-	u_adc1_value.v = value;
-
-	return u_adc1_value.s.value;
-}
-
-static adc1_values_t *get_adc1_value(void)
-{
-	static adc1_values_t ret;
-	int i;
-	uint32_t value1 = 0;
-	uint32_t value2 = 0;
-
-	for(i = 0; i < ADC_VALUES_GROUPS; i++) {
-		adc1_values_t *adc1_values = adc1_values_data + i;
-
-		value1 += get_adc_channel_value(adc1_values->value1);
-		value2 += get_adc_channel_value(adc1_values->value2);
-	}
-
-	if(ADC_VALUES_GROUPS != 0) {
-		value1 /= ADC_VALUES_GROUPS;
-		value2 /= ADC_VALUES_GROUPS;
-	} else {
-		value1 = 0;
-		value2 = 0;
-	}
-
-	ret.value1 = value1;
-	ret.value2 = value2;
-
-	return &ret;
-}
 
 void app(void const *argument)
 {
@@ -150,14 +88,7 @@ void app(void const *argument)
 	}
 
 	while(1) {
-		adc1_values_t *adc1_values;
-
 		osDelay(1000);
-
-		adc1_values = get_adc1_value();
-
-		debug("adc1_values->value1:%d\n", adc1_values->value1);
-		debug("adc1_values->value2:%d\n", adc1_values->value2);
 	}
 }
 

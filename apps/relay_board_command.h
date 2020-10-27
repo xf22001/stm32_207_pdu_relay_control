@@ -6,7 +6,7 @@
  *   文件名称：relay_board_command.h
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 11时11分49秒
- *   修改日期：2020年10月26日 星期一 15时35分22秒
+ *   修改日期：2020年10月27日 星期二 09时15分37秒
  *   描    述：
  *
  *================================================================*/
@@ -55,6 +55,8 @@ typedef struct {
 typedef struct {
 	uint8_t config;
 	relay_board_fault_t fault;//relay_board_fault_t
+	uint16_t temperature1;
+	uint16_t temperature2;
 } relay_board_status_t;
 
 #pragma pack(pop)

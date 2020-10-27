@@ -6,7 +6,7 @@
  *   文件名称：relay_board.h
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分45秒
- *   修改日期：2020年07月15日 星期三 13时21分40秒
+ *   修改日期：2020年10月27日 星期二 09时26分21秒
  *   描    述：
  *
  *================================================================*/
@@ -26,10 +26,28 @@ extern "C"
 }
 #endif
 
+#define ADC_VALUES_GROUPS 10
+typedef struct {
+	uint16_t value1;
+	uint16_t value2;
+} adc1_values_t;
+
+typedef struct {
+	uint16_t value : 12;
+	uint16_t unused : 4;
+} adc1_value_t;
+
+typedef union {
+	adc1_value_t s;
+	uint16_t v;
+} u_adc1_value_t;
+
 void update_relay_board_id(void);
 uint8_t get_relay_board_id(void);
 int relay_board_set_config(uint8_t config);
 uint8_t relay_board_get_config(void);
 uint8_t relay_board_get_status(void);
+void start_adc1(void);
+adc1_values_t *get_adc1_value(void);
 
 #endif //_RELAY_BOARD_H

@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2020年08月13日 星期四 09时36分10秒
+ *   修改日期：2020年10月27日 星期二 09时21分53秒
  *   描    述：
  *
  *================================================================*/
@@ -17,7 +17,10 @@
 #define LOG_UART
 #include "log.h"
 
+extern ADC_HandleTypeDef hadc1;
+
 static uint8_t relay_board_id = 0xff;
+static adc1_values_t adc1_values_data[ADC_VALUES_GROUPS];
 
 typedef union {
 	uint8_bits_t s;
@@ -195,4 +198,48 @@ uint8_t relay_board_get_status(void)
 	}
 
 	return fault;
+}
+
+
+void start_adc1(void)
+{
+	uint32_t length = ADC_VALUES_GROUPS * (sizeof(adc1_values_t) / sizeof(uint16_t));
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc1_values_data, length);
+}
+
+static uint16_t get_adc_channel_value(uint16_t value)
+{
+	u_adc1_value_t u_adc1_value;
+
+	u_adc1_value.v = value;
+
+	return u_adc1_value.s.value;
+}
+
+adc1_values_t *get_adc1_value(void)
+{
+	static adc1_values_t ret;
+	int i;
+	uint32_t value1 = 0;
+	uint32_t value2 = 0;
+
+	for(i = 0; i < ADC_VALUES_GROUPS; i++) {
+		adc1_values_t *adc1_values = adc1_values_data + i;
+
+		value1 += get_adc_channel_value(adc1_values->value1);
+		value2 += get_adc_channel_value(adc1_values->value2);
+	}
+
+	if(ADC_VALUES_GROUPS != 0) {
+		value1 /= ADC_VALUES_GROUPS;
+		value2 /= ADC_VALUES_GROUPS;
+	} else {
+		value1 = 0;
+		value2 = 0;
+	}
+
+	ret.value1 = value1;
+	ret.value2 = value2;
+
+	return &ret;
 }
