@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年10月28日 星期三 14时04分57秒
+ *   修改日期：2020年10月28日 星期三 16时47分06秒
  *   描    述：
  *
  *================================================================*/
@@ -471,7 +471,7 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 		relay_board_status->config = relay_board_get_config();
 		relay_board_status->fault.fault = relay_board_get_status();
 		relay_board_status->fault.over_temperature = 0;
-		relay_board_status->temperature1 = adc1_values->value1;
+		relay_board_status->temperature1 = get_ntc_temperature(10000, adc1_values->value1, 4095);
 		relay_board_status->temperature2 = get_ntc_temperature(10000, adc1_values->value2, 4095);
 		debug("temperature1:%d, temperature2:%d\n",
 		      relay_board_status->temperature1,

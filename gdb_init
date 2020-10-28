@@ -87,10 +87,10 @@ b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board.c:40
 		c
 	end
 
-b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board.c:184
+b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board_communication.c:476
 	commands
-		printf "status 0x%x.\n", status
-		printf "relay_board_config 0x%x.\n", relay_board_config
+		printf "ad:%f\n", 3.3 * adc1_values->value1 / 4095
+		printf "relay_board_status->temperature1:%d, relay_board_status->temperature2:%d\n", relay_board_status->temperature1, relay_board_status->temperature2
 		c
 	end
 
