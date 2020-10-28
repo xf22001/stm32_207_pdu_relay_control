@@ -55,8 +55,8 @@ typedef struct {
 typedef struct {
 	uint8_t config;
 	relay_board_fault_t fault;//relay_board_fault_t
-	uint16_t temperature1;
-	uint16_t temperature2;
+	int16_t temperature1;
+	int16_t temperature2;
 } relay_board_status_t;
 
 #pragma pack(pop)

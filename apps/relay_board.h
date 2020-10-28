@@ -6,7 +6,7 @@
  *   文件名称：relay_board.h
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分45秒
- *   修改日期：2020年10月27日 星期二 09时26分21秒
+ *   修改日期：2020年10月28日 星期三 14时10分50秒
  *   描    述：
  *
  *================================================================*/
@@ -49,5 +49,6 @@ uint8_t relay_board_get_config(void);
 uint8_t relay_board_get_status(void);
 void start_adc1(void);
 adc1_values_t *get_adc1_value(void);
+int get_ntc_temperature(uint32_t ref_resistor, uint16_t adc_voltage, uint16_t adc_max);
 
 #endif //_RELAY_BOARD_H
