@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年10月29日 星期四 09时03分41秒
+ *   修改日期：2020年11月10日 星期二 09时06分59秒
  *   描    述：
  *
  *================================================================*/
@@ -48,7 +48,7 @@ typedef union {
 	uint32_t v;
 } u_com_can_rx_id_t;
 
-#define RESPONSE_TIMEOUT 3000
+#define RESPONSE_TIMEOUT 300
 
 #define add_des_case(e) \
 	case e: { \
@@ -641,9 +641,10 @@ void task_relay_board_com_request(void const *argument)
 			ret = can_tx_data(relay_board_com_info->can_info, &relay_board_com_info->can_tx_msg, 10);
 
 			if(ret != 0) {//发送失败
+				cmd_ctx->state = CAN_COM_STATE_REQUEST;
+
 				debug("send request cmd %d(%s) error!\n", item->cmd, get_relay_board_cmd_des(item->cmd));
 				relay_board_com_set_connect_state(relay_board_com_info, 0);
-				cmd_ctx->state = CAN_COM_STATE_REQUEST;
 			}
 		}
 
@@ -690,11 +691,11 @@ void task_relay_board_com_response(void const *argument)
 				//debug("response cmd %d(%s), index:%d\n", item->cmd, get_relay_board_cmd_des(item->cmd), can_com_cmd_common->index);
 
 				flicker_can_led(1);
+				relay_board_com_set_connect_state(relay_board_com_info, 1);
+
 				ret = item->response_callback(relay_board_com_info);
 
-				if(ret == 0) {//收到响应
-					relay_board_com_set_connect_state(relay_board_com_info, 1);
-				} else {
+				if(ret != 0) {//收到响应
 					debug("process response cmd %d(%s) error!\n", item->cmd, get_relay_board_cmd_des(item->cmd));
 				}
 
