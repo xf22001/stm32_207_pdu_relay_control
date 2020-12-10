@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2020年11月10日 星期二 09时06分59秒
+ *   修改日期：2020年12月10日 星期四 15时22分07秒
  *   描    述：
  *
  *================================================================*/
@@ -276,49 +276,49 @@ failed:
 }
 
 //准备请求数据 发
-static int prepare_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
+static int prepare_tx_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
 {
 	int ret = -1;
 	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = can_com_prepare_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
+	ret = can_com_prepare_tx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
 
 	return ret;
 }
 
 //请求后，处理响应数据 收
-static int process_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
+static int process_rx_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
 {
 	int ret = -1;
 	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_rx_msg->Data;
 
-	ret = can_com_process_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
+	ret = can_com_process_rx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
 
 	return ret;
 }
 
 //收到请求后,准备响应数据 发
-static int prepare_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
+static int prepare_tx_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
 {
 	int ret = -1;
 	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = can_com_prepare_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
+	ret = can_com_prepare_tx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
 
 	return ret;
 }
 
 //处理请求数据 收
-static int process_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
+static int process_rx_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
 {
 	int ret = -1;
 	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_rx_msg->Data;
 
-	ret = can_com_process_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
+	ret = can_com_process_rx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
 
 	return ret;
 }
@@ -348,7 +348,7 @@ static int request_relay_board_heartbeat(relay_board_com_info_t *relay_board_com
 		//         sizeof(relay_board_heartbeat_t));
 	}
 
-	ret = prepare_request(relay_board_com_info,
+	ret = prepare_tx_request(relay_board_com_info,
 	                      RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
 	                      (uint8_t *)&data_ctx->relay_board_heartbeat,
 	                      sizeof(relay_board_heartbeat_t));
@@ -360,7 +360,7 @@ static int response_relay_board_heartbeat(relay_board_com_info_t *relay_board_co
 {
 	int ret = -1;
 
-	ret = process_response(relay_board_com_info,
+	ret = process_rx_response(relay_board_com_info,
 	                       RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
 	                       sizeof(relay_board_heartbeat_t));
 
@@ -380,7 +380,7 @@ static int request_relay_boards_heartbeat(relay_board_com_info_t *relay_board_co
 	//data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = prepare_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT, sizeof(relay_boards_heartbeat_t));
+	ret = prepare_tx_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT, sizeof(relay_boards_heartbeat_t));
 
 	if(can_com_cmd_response->response_status == CAN_COM_RESPONSE_STATUS_DONE) {
 		//int i;
@@ -405,7 +405,7 @@ static int response_relay_boards_heartbeat(relay_board_com_info_t *relay_board_c
 	int ret = -1;
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
-	ret = process_request(relay_board_com_info,
+	ret = process_rx_request(relay_board_com_info,
 	                      RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT,
 	                      (uint8_t *)&data_ctx->relay_boards_heartbeat,
 	                      sizeof(relay_boards_heartbeat_t));
@@ -426,7 +426,7 @@ static int request_relay_board_config(relay_board_com_info_t *relay_board_com_in
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = prepare_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG, sizeof(relay_board_config_t));
+	ret = prepare_tx_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG, sizeof(relay_board_config_t));
 
 	if(can_com_cmd_response->response_status == CAN_COM_RESPONSE_STATUS_DONE) {
 		relay_board_config_t *relay_board_config = (relay_board_config_t *)&data_ctx->relay_board_config;
@@ -442,7 +442,7 @@ static int response_relay_board_config(relay_board_com_info_t *relay_board_com_i
 	int ret = -1;
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
-	ret = process_request(relay_board_com_info,
+	ret = process_rx_request(relay_board_com_info,
 	                      RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG,
 	                      (uint8_t *)&data_ctx->relay_board_config,
 	                      sizeof(relay_board_config_t));
@@ -475,7 +475,7 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 		relay_board_status->fault.over_temperature = (relay_board_status->temperature1 >= 75) ? 1 : 0;
 	}
 
-	ret = prepare_request(relay_board_com_info,
+	ret = prepare_tx_request(relay_board_com_info,
 	                      RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
 	                      (uint8_t *)&data_ctx->relay_board_status,
 	                      sizeof(relay_board_status_t));
@@ -487,7 +487,7 @@ static int response_relay_board_status(relay_board_com_info_t *relay_board_com_i
 {
 	int ret = -1;
 
-	ret = process_response(relay_board_com_info,
+	ret = process_rx_response(relay_board_com_info,
 	                       RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
 	                       sizeof(relay_board_status_t));
 
