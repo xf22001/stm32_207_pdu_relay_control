@@ -44,6 +44,7 @@ b app
 	commands
 		c
 	end
+
 #b HAL_CAN_TxCpltCallback
 #	commands
 #		c
@@ -58,39 +59,9 @@ b app
 #		c
 #	end
 
-b set_charger_state
+b log_uart_data
 	commands
-		c
-	end
-b set_bms_state
-	commands
-		c
-	end
-
-#b /home/xiaofei/media/work/bms_box/apps/modules/app/bms_multi_data.c:150 if can_info->hcan == &hcan2
-#	commands
-#		p can_info->hcan
-#		p multi_packets_des
-#		p multi_packets_des->bms_data_multi_next_index
-#		p multi_packets_des->bms_data_multi_packets
-#		c
-#	end
-
-#b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board_communication.c:672
-#	commands
-#		c
-#	end
-
-b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board.c:40
-	commands
-		p relay_board_id
-		c
-	end
-
-b /home/xiaofei/media/work/pdu_relay_control/apps/relay_board_communication.c:476
-	commands
-		printf "ad:%f\n", 3.3 * adc1_values->value1 / 4095
-		printf "relay_board_status->temperature1:%d, relay_board_status->temperature2:%d\n", relay_board_status->temperature1, relay_board_status->temperature2
+		p (char *)data
 		c
 	end
 

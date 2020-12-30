@@ -6,7 +6,7 @@
  *   文件名称：os_utils.c
  *   创 建 者：肖飞
  *   创建日期：2019年11月13日 星期三 11时13分17秒
- *   修改日期：2020年08月14日 星期五 09时43分23秒
+ *   修改日期：2020年12月17日 星期四 14时35分38秒
  *   描    述：
  *
  *================================================================*/
@@ -15,9 +15,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #include "cmsis_os.h"
 #include "list_utils.h"
 #include "main.h"
+#include "app_platform.h"
 
 #include "log.h"
 
@@ -36,6 +39,10 @@ typedef struct {
 } mem_info_t;
 
 #define LOG_BUFFER_SIZE (1024)
+
+#if(configAPPLICATION_ALLOCATED_HEAP == 1)
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] CCMRAM;
+#endif
 
 static mem_info_t mem_info = {
 	.init = 0,
@@ -182,6 +189,12 @@ void get_mem_info(size_t *size, size_t *count, size_t *max_size)
 
 	if(os_status != osOK) {
 	}
+}
+
+extern uint32_t _Min_Heap_Size;
+uint32_t get_total_heap_size(void)
+{
+	return (uint32_t)&_Min_Heap_Size;
 }
 
 void *os_alloc(size_t size)
@@ -394,7 +407,7 @@ void log_hexdump(log_fn_t log_fn, const char *label, const char *data, int len)
 
 		if(log_fn != NULL) {
 			HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_RESET);
-			ret = log_fn(buffer, ret);
+			ret = log_fn(buffer, BUFFER_LEN - left);
 			HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET);
 		}
 
@@ -440,4 +453,33 @@ unsigned char mem_is_set(char *values, size_t size, char value)
 	}
 
 	return ret;
+}
+
+unsigned int str_hash(const char *s)
+{
+	unsigned int hash = 0;
+	const char *p = NULL;
+
+	p = s;
+	while(*p != 0) {
+		hash = (31 * hash) + tolower(*p);
+		p++;
+	}
+
+	return hash;
+}
+
+unsigned char calc_crc8(const void *data, size_t size)
+{
+	unsigned char crc = 0;
+	unsigned char *p = (unsigned char *)data;
+
+	while(size > 0) {
+		crc += *p;
+
+		p++;
+		size--;
+	}
+
+	return crc;
 }
