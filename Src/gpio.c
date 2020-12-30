@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : gpio.c
-  * Description        : This file provides code for the configuration
-  *                      of all used GPIO pins.
+  * @file    gpio.c
+  * @brief   This file provides code for the configuration
+  *          of all used GPIO pins.
   ******************************************************************************
   * @attention
   *
@@ -19,6 +19,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "gpio.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -30,9 +31,9 @@
 
 /* USER CODE END 1 */
 
-/** Configure pins as 
-        * Analog 
-        * Input 
+/** Configure pins as
+        * Analog
+        * Input
         * Output
         * EVENT_OUT
         * EXTI
@@ -54,7 +55,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, kg9_Pin|kg10_Pin|kg11_Pin|kg12_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, led_fault_Pin|led_can_Pin|kg4_Pin|kg3_Pin 
+  HAL_GPIO_WritePin(GPIOC, led_fault_Pin|led_can_Pin|kg4_Pin|kg3_Pin
                           |kg2_Pin|kg1_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
@@ -76,9 +77,9 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PCPin PCPin PCPin PCPin 
+  /*Configure GPIO pins : PCPin PCPin PCPin PCPin
                            PCPin PCPin */
-  GPIO_InitStruct.Pin = led_fault_Pin|led_can_Pin|kg4_Pin|kg3_Pin 
+  GPIO_InitStruct.Pin = led_fault_Pin|led_can_Pin|kg4_Pin|kg3_Pin
                           |kg2_Pin|kg1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -91,11 +92,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PDPin PDPin PDPin PDPin 
-                           PDPin PDPin PDPin PDPin 
+  /*Configure GPIO pins : PDPin PDPin PDPin PDPin
+                           PDPin PDPin PDPin PDPin
                            PDPin PDPin PDPin PDPin */
-  GPIO_InitStruct.Pin = fb9_Pin|fb10_Pin|fb11_Pin|fb12_Pin 
-                          |fb1_Pin|fb2_Pin|fb3_Pin|fb4_Pin 
+  GPIO_InitStruct.Pin = fb9_Pin|fb10_Pin|fb11_Pin|fb12_Pin
+                          |fb1_Pin|fb2_Pin|fb3_Pin|fb4_Pin
                           |fb5_Pin|fb6_Pin|fb7_Pin|fb8_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
