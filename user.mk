@@ -6,7 +6,7 @@
 #   文件名称：user.mk
 #   创 建 者：肖飞
 #   创建日期：2019年10月25日 星期五 13时04分38秒
-#   修改日期：2020年12月30日 星期三 17时09分57秒
+#   修改日期：2021年01月04日 星期一 13时34分03秒
 #   描    述：
 #
 #================================================================
@@ -15,7 +15,6 @@ USER_C_INCLUDES += -Iapps
 USER_C_INCLUDES += -Iapps/modules
 USER_C_INCLUDES += -Iapps/modules/os
 USER_C_INCLUDES += -Iapps/modules/drivers
-USER_C_INCLUDES += -Iapps/modules/drivers/fw_1.9.0
 USER_C_INCLUDES += -Iapps/modules/hardware
 USER_C_INCLUDES += -Iapps/modules/app
 USER_C_INCLUDES += -Iapps/modules/tests
@@ -32,7 +31,7 @@ USER_C_SOURCES += apps/os_utils.c
 
 USER_C_SOURCES += apps/modules/app/uart_debug.c
 USER_C_SOURCES += apps/modules/app/can_command.c
-USER_C_SOURCES += apps/modules/drivers/fw_1.9.0/can_txrx.c
+USER_C_SOURCES += apps/modules/drivers/can_txrx.c
 USER_C_SOURCES += apps/modules/drivers/usart_txrx.c
 USER_C_SOURCES += apps/modules/os/event_helper.c
 USER_C_SOURCES += apps/modules/os/callback_chain.c
