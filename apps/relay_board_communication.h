@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.h
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分58秒
- *   修改日期：2020年07月07日 星期二 13时08分01秒
+ *   修改日期：2021年01月21日 星期四 14时51分06秒
  *   描    述：
  *
  *================================================================*/
@@ -45,6 +45,9 @@ typedef struct {
 	can_com_connect_state_t connect_state;
 
 	uint32_t periodic_stamp;
+
+	callback_item_t can_data_request_cb;
+	callback_item_t can_data_response_cb;
 } relay_board_com_info_t;
 
 void free_relay_board_com_info(relay_board_com_info_t *relay_board_com_info);

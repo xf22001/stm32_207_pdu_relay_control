@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2020年10月27日 星期二 09时24分32秒
+ *   修改日期：2021年01月21日 星期四 14时34分33秒
  *   描    述：
  *
  *================================================================*/
@@ -73,18 +73,11 @@ void app(void const *argument)
 	//}
 
 	{
-		relay_board_com_info_t *relay_board_com_info;
-		osThreadDef(task_relay_board_com_request, task_relay_board_com_request, osPriorityNormal, 0, 128 * 2);
-		osThreadDef(task_relay_board_com_response, task_relay_board_com_response, osPriorityAboveNormal, 0, 128 * 2);
-
-		relay_board_com_info = get_or_alloc_relay_board_com_info(channel_info_config);
+		relay_board_com_info_t *relay_board_com_info = get_or_alloc_relay_board_com_info(channel_info_config);
 
 		if(relay_board_com_info == NULL) {
 			app_panic();
 		}
-
-		osThreadCreate(osThread(task_relay_board_com_request), relay_board_com_info);
-		osThreadCreate(osThread(task_relay_board_com_response), relay_board_com_info);
 	}
 
 	while(1) {
