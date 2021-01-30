@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2021年01月21日 星期四 14时34分33秒
+ *   修改日期：2021年01月30日 星期六 11时08分17秒
  *   描    述：
  *
  *================================================================*/
@@ -17,6 +17,8 @@
 
 #include "os_utils.h"
 
+#include "usart_txrx.h"
+#include "uart_debug.h"
 #include "test_serial.h"
 #include "relay_board.h"
 #include "channel_config.h"
