@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2021年01月30日 星期六 11时08分17秒
+ *   修改日期：2021年02月01日 星期一 10时55分50秒
  *   描    述：
  *
  *================================================================*/
@@ -34,7 +34,11 @@ extern TIM_HandleTypeDef htim3;
 
 void app(void const *argument)
 {
-	channel_info_config_t *channel_info_config = get_channel_info_config(0);
+	channel_info_config_t *channel_info_config;
+
+	add_log_handler((log_fn_t)log_uart_data);
+
+	channel_info_config = get_channel_info_config(0);
 
 	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(led_fault_GPIO_Port, led_fault_Pin, GPIO_PIN_SET);
