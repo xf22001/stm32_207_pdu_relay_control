@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2021年02月01日 星期一 10时55分50秒
+ *   修改日期：2021年02月01日 星期一 14时59分53秒
  *   描    述：
  *
  *================================================================*/
@@ -14,9 +14,8 @@
 #include "app_platform.h"
 #include "cmsis_os.h"
 #include "main.h"
-
+#include "iwdg.h"
 #include "os_utils.h"
-
 #include "usart_txrx.h"
 #include "uart_debug.h"
 #include "test_serial.h"
@@ -126,10 +125,10 @@ static void update_work_led(void)
 		break;
 
 		case PWM_COMPARE_COUNT_KEEP: {//保持亮
-			if(keep_count < duty_cycle) {
+			if(keep_count > duty_cycle) {
 				keep_count -= 200;
 			} else {
-				keep_count = 0;
+				keep_count = 1000;
 				type = PWM_COMPARE_COUNT_UP;//慢慢灭
 			}
 
@@ -140,11 +139,12 @@ static void update_work_led(void)
 			break;
 	}
 
-	__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_3, duty_cycle);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, duty_cycle);
 }
 
 void idle(void const *argument)
 {
+	MX_IWDG_Init();
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 
 	while(1) {
