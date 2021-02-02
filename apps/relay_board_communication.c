@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年02月01日 星期一 10时47分11秒
+ *   修改日期：2021年02月02日 星期二 13时44分45秒
  *   描    述：
  *
  *================================================================*/
@@ -17,7 +17,7 @@
 
 #include "app.h"
 #include "main.h"
-#include "map_utils.h"
+#include "object_class.h"
 #include "relay_board.h"
 #include "can_data_task.h"
 
@@ -526,7 +526,7 @@ static void can_data_response(void *fn_ctx, void *chain_ctx)
 	relay_board_com_response(relay_board_com_info);
 }
 
-static map_utils_t *relay_board_com_map = NULL;
+static object_class_t *relay_board_com_class = NULL;
 
 void free_relay_board_com_info(relay_board_com_info_t *relay_board_com_info)
 {
@@ -648,19 +648,32 @@ failed:
 	return relay_board_com_info;
 }
 
+static int object_filter(void *o, void *ctx)
+{
+	int ret = -1;
+	relay_board_com_info_t *relay_board_com_info = (relay_board_com_info_t *)o;
+	channel_info_config_t *channel_info_config = (channel_info_config_t *)ctx;
+
+	if(relay_board_com_info->channel_info_config == channel_info_config) {
+		ret = 0;
+	}
+
+	return ret;
+}
+
 relay_board_com_info_t *get_or_alloc_relay_board_com_info(channel_info_config_t *channel_info_config)
 {
 	relay_board_com_info_t *relay_board_com_info = NULL;
 
 	__disable_irq();
 
-	if(relay_board_com_map == NULL) {
-		relay_board_com_map = map_utils_alloc(NULL);
+	if(relay_board_com_class == NULL) {
+		relay_board_com_class = object_class_alloc();
 	}
 
 	__enable_irq();
 
-	relay_board_com_info = (relay_board_com_info_t *)map_utils_get_or_alloc_value(relay_board_com_map, channel_info_config, (map_utils_value_alloc_t)alloc_relay_board_com_info, (map_utils_value_free_t)free_relay_board_com_info);
+	relay_board_com_info = (relay_board_com_info_t *)object_class_get_or_alloc_object(relay_board_com_class, object_filter, channel_info_config, (object_alloc_t)alloc_relay_board_com_info, (object_free_t)free_relay_board_com_info);
 
 	return relay_board_com_info;
 }

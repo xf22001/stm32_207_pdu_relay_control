@@ -6,7 +6,7 @@
 #   文件名称：user.mk
 #   创 建 者：肖飞
 #   创建日期：2019年10月25日 星期五 13时04分38秒
-#   修改日期：2021年02月01日 星期一 10时49分22秒
+#   修改日期：2021年02月02日 星期二 13时45分04秒
 #   描    述：
 #
 #================================================================
@@ -38,7 +38,7 @@ USER_C_SOURCES += apps/modules/os/event_helper.c
 USER_C_SOURCES += apps/modules/os/callback_chain.c
 USER_C_SOURCES += apps/modules/os/bitmap_ops.c
 USER_C_SOURCES += apps/modules/os/iap.c
-USER_C_SOURCES += apps/modules/os/map_utils.c
+USER_C_SOURCES += apps/modules/os/object_class.c
 USER_C_SOURCES += apps/modules/os/log.c
 USER_C_SOURCES += apps/modules/tests/test_serial.c
 
