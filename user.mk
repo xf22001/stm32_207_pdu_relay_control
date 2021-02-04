@@ -6,7 +6,7 @@
 #   文件名称：user.mk
 #   创 建 者：肖飞
 #   创建日期：2019年10月25日 星期五 13时04分38秒
-#   修改日期：2021年02月02日 星期二 13时45分04秒
+#   修改日期：2021年02月04日 星期四 11时22分25秒
 #   描    述：
 #
 #================================================================
@@ -27,7 +27,7 @@ USER_C_SOURCES += apps/channel_config.c
 USER_C_SOURCES += apps/can_config.c
 USER_C_SOURCES += apps/relay_board.c
 USER_C_SOURCES += apps/relay_board_communication.c
-USER_C_SOURCES += apps/os_utils.c
+USER_C_SOURCES += apps/os_memory.c
 
 USER_C_SOURCES += apps/modules/app/uart_debug.c
 USER_C_SOURCES += apps/modules/app/can_command.c
@@ -40,6 +40,7 @@ USER_C_SOURCES += apps/modules/os/bitmap_ops.c
 USER_C_SOURCES += apps/modules/os/iap.c
 USER_C_SOURCES += apps/modules/os/object_class.c
 USER_C_SOURCES += apps/modules/os/log.c
+USER_C_SOURCES += apps/modules/os/os_utils.c
 USER_C_SOURCES += apps/modules/tests/test_serial.c
 
 C_SOURCES += $(USER_C_SOURCES)
