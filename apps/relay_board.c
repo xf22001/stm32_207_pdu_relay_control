@@ -6,7 +6,7 @@
  *   文件名称：relay_board.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时29分03秒
- *   修改日期：2021年02月01日 星期一 10时46分02秒
+ *   修改日期：2021年02月21日 星期日 19时29分12秒
  *   描    述：
  *
  *================================================================*/
@@ -188,7 +188,7 @@ uint8_t relay_board_get_status(void)
 	if(status != relay_board_config) {
 		debug("status %02x, relay_board_config:%02x\n", status, relay_board_config);
 
-		if(abs(ticks - relay_board_config_stamp) >= 1 * 1000) {
+		if(ticks_duration(ticks, relay_board_config_stamp) >= 1 * 1000) {
 			fault = 1;
 		}
 	}
