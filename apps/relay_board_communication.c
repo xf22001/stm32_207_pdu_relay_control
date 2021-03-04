@@ -665,13 +665,13 @@ relay_board_com_info_t *get_or_alloc_relay_board_com_info(channel_info_config_t 
 {
 	relay_board_com_info_t *relay_board_com_info = NULL;
 
-	__disable_irq();
+	os_enter_critical();
 
 	if(relay_board_com_class == NULL) {
 		relay_board_com_class = object_class_alloc();
 	}
 
-	__enable_irq();
+	os_leave_critical();
 
 	relay_board_com_info = (relay_board_com_info_t *)object_class_get_or_alloc_object(relay_board_com_class, object_filter, channel_info_config, (object_alloc_t)alloc_relay_board_com_info, (object_free_t)free_relay_board_com_info);
 
