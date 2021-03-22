@@ -60,7 +60,7 @@ void app(void const *argument)
 		osThreadCreate(osThread(uart_debug), uart_info);
 	}
 
-	debug("===========================================start app============================================\n");
+	debug("===========================================start app============================================");
 
 	update_relay_board_id();
 

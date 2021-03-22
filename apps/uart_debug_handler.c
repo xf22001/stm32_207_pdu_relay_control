@@ -20,7 +20,7 @@
 
 static void fn1(char *arguments)
 {
-	debug("arguments:\'%s\'\n", arguments);
+	debug("arguments:\'%s\'", arguments);
 }
 
 static void fn2(char *arguments)
@@ -45,19 +45,19 @@ static void fn5(char *arguments)
 #if defined(USER_APP)
 	is_app = 1;
 #endif
-	debug("os free heap size:%d\n", size);
+	debug("os free heap size:%d", size);
 
 	get_mem_info(&size, &count, &max_size);
-	debug("app heap size:%d, count:%d, max_size:%d\n", size, count, max_size);
-	debug("current ticks:%lu\n", ticks);
-	debug("%lu day %lu hour %lu min %lu sec\n",
+	debug("app heap size:%d, count:%d, max_size:%d", size, count, max_size);
+	debug("current ticks:%lu", ticks);
+	debug("%lu day %lu hour %lu min %lu sec",
 	        ticks / (1000 * 60 * 60 * 24),//day
 	        (ticks % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),//hour
 	        (ticks % (1000 * 60 * 60)) / (1000 * 60),//min
 	        (ticks % (1000 * 60)) / (1000)//sec
 	       );
 	update_relay_board_id();
-	debug("relay_board id:%d\n", get_relay_board_id());
+	debug("relay_board id:%d", get_relay_board_id());
 
 	size = 1024;
 
@@ -74,9 +74,9 @@ static void fn5(char *arguments)
 	os_free(os_thread_info);
 
 	if(is_app) {
-		debug("in app!\n");
+		debug("in app!");
 	} else {
-		debug("in bootloader!\n");
+		debug("in bootloader!");
 	}
 }
 
