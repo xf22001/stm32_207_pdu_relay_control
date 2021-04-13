@@ -39,7 +39,7 @@ typedef struct {
 
 	channel_info_config_t *channel_info_config;
 
-	can_com_cmd_ctx_t *cmd_ctx;
+	command_status_t *cmd_ctx;
 
 	void *relay_board_com_data_ctx;
 

@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年04月13日 星期二 17时09分05秒
+ *   修改日期：2021年04月13日 星期二 17时45分37秒
  *   描    述：
  *
  *================================================================*/
@@ -100,7 +100,7 @@ typedef struct {
 static int prepare_tx_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
 {
 	int ret = -1;
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 
 	ret = can_com_prepare_tx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
@@ -112,7 +112,7 @@ static int prepare_tx_request(relay_board_com_info_t *relay_board_com_info, uint
 static int process_rx_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
 {
 	int ret = -1;
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_rx_msg->Data;
 
 	ret = can_com_process_rx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
@@ -124,7 +124,7 @@ static int process_rx_response(relay_board_com_info_t *relay_board_com_info, uin
 static int prepare_tx_response(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t data_size)
 {
 	int ret = -1;
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
 	ret = can_com_prepare_tx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
@@ -136,7 +136,7 @@ static int prepare_tx_response(relay_board_com_info_t *relay_board_com_info, uin
 static int process_rx_request(relay_board_com_info_t *relay_board_com_info, uint8_t cmd, uint8_t *data, uint8_t data_size)
 {
 	int ret = -1;
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_rx_msg->Data;
 
 	ret = can_com_process_rx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
@@ -158,7 +158,7 @@ static int request_relay_board_heartbeat(relay_board_com_info_t *relay_board_com
 {
 	int ret = -1;
 
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT;
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	if(cmd_ctx->index == 0) {
@@ -282,7 +282,7 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 {
 	int ret = -1;
 
-	can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_STATUS;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_STATUS;
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	if(cmd_ctx->index == 0) {
@@ -353,9 +353,9 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 
 	for(i = 0; i < ARRAY_SIZE(relay_board_com_command_table); i++) {
 		command_item_t *item = relay_board_com_command_table[i];
-		can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
+		command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
 
-		if(cmd_ctx->state == CAN_COM_STATE_RESPONSE) {
+		if(cmd_ctx->state == COMMAND_STATE_RESPONSE) {
 			if(ticks_duration(ticks, cmd_ctx->send_stamp) >= RESPONSE_TIMEOUT) {//超时
 				relay_board_com_set_connect_state(relay_board_com_info, 0);
 				debug("cmd %d(%s) index %d timeout, connect state:%d",
@@ -363,7 +363,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 				      get_relay_board_cmd_des(item->cmd),
 				      cmd_ctx->index,
 				      relay_board_com_get_connect_state(relay_board_com_info));
-				cmd_ctx->state = CAN_COM_STATE_REQUEST;
+				cmd_ctx->state = COMMAND_STATE_REQUEST;
 			}
 		}
 
@@ -375,7 +375,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 			continue;
 		}
 
-		if(cmd_ctx->state != CAN_COM_STATE_IDLE) {
+		if(cmd_ctx->state != COMMAND_STATE_IDLE) {
 			continue;
 		}
 
@@ -384,7 +384,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 
 			//debug("start cmd %d(%s)", item->cmd, get_relay_board_cmd_des(item->cmd));
 			cmd_ctx->index = 0;
-			cmd_ctx->state = CAN_COM_STATE_REQUEST;
+			cmd_ctx->state = COMMAND_STATE_REQUEST;
 		}
 	}
 
@@ -414,14 +414,14 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 	for(i = 0; i < ARRAY_SIZE(relay_board_com_command_table); i++) {
 		uint32_t ticks = osKernelSysTick();
 		command_item_t *item = relay_board_com_command_table[i];
-		can_com_cmd_ctx_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
+		command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
 		can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 		u_com_can_tx_id_t *u_com_can_tx_id = (u_com_can_tx_id_t *)&relay_board_com_info->can_tx_msg.ExtId;
 
 		flicker_can_led(0);
 		relay_board_com_request_periodic(relay_board_com_info);
 
-		if(cmd_ctx->state != CAN_COM_STATE_REQUEST) {
+		if(cmd_ctx->state != COMMAND_STATE_REQUEST) {
 			continue;
 		}
 
@@ -455,7 +455,7 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 		ret = can_tx_data(relay_board_com_info->can_info, &relay_board_com_info->can_tx_msg, 10);
 
 		if(ret != 0) {//发送失败
-			cmd_ctx->state = CAN_COM_STATE_REQUEST;
+			cmd_ctx->state = COMMAND_STATE_REQUEST;
 
 			debug("send request cmd %d(%s) error!", item->cmd, get_relay_board_cmd_des(item->cmd));
 			relay_board_com_set_connect_state(relay_board_com_info, 0);
@@ -549,19 +549,19 @@ static int relay_board_com_info_set_channel_config(relay_board_com_info_t *relay
 {
 	int ret = -1;
 	can_info_t *can_info;
-	can_com_cmd_ctx_t *cmd_ctx;
+	command_status_t *cmd_ctx;
 	data_ctx_t *data_ctx;
 	com_can_rx_id_t *com_can_rx_id;
 	com_can_rx_id_t *com_can_rx_mask_id;
 	can_data_task_info_t *can_data_task_info;
 
-	cmd_ctx = (can_com_cmd_ctx_t *)os_alloc(sizeof(can_com_cmd_ctx_t) * RELAY_BOARD_CMD_TOTAL);
+	cmd_ctx = (command_status_t *)os_alloc(sizeof(command_status_t) * RELAY_BOARD_CMD_TOTAL);
 
 	if(cmd_ctx == NULL) {
 		return ret;
 	}
 
-	memset(cmd_ctx, 0, sizeof(can_com_cmd_ctx_t) * RELAY_BOARD_CMD_TOTAL);
+	memset(cmd_ctx, 0, sizeof(command_status_t) * RELAY_BOARD_CMD_TOTAL);
 
 	relay_board_com_info->cmd_ctx = cmd_ctx;
 
