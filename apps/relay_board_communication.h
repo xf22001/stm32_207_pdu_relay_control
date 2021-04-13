@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.h
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分58秒
- *   修改日期：2021年01月21日 星期四 14时51分06秒
+ *   修改日期：2021年04月13日 星期二 17时08分29秒
  *   描    述：
  *
  *================================================================*/
@@ -24,6 +24,7 @@ extern "C"
 #include "channel_config.h"
 #include "callback_chain.h"
 #include "can_command.h"
+#include "connect_state.h"
 
 #ifdef __cplusplus
 }
@@ -42,7 +43,7 @@ typedef struct {
 
 	void *relay_board_com_data_ctx;
 
-	can_com_connect_state_t connect_state;
+	connect_state_t connect_state;
 
 	uint32_t periodic_stamp;
 

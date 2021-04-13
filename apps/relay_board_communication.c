@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年02月21日 星期日 19时29分41秒
+ *   修改日期：2021年04月13日 星期二 17时09分05秒
  *   描    述：
  *
  *================================================================*/
@@ -332,12 +332,12 @@ static command_item_t *relay_board_com_command_table[] = {
 
 static void relay_board_com_set_connect_state(relay_board_com_info_t *relay_board_com_info, uint8_t state)
 {
-	can_com_set_connect_state(&relay_board_com_info->connect_state, state);
+	update_connect_state(&relay_board_com_info->connect_state, state);
 }
 
 uint8_t relay_board_com_get_connect_state(relay_board_com_info_t *relay_board_com_info)
 {
-	return can_com_get_connect_state(&relay_board_com_info->connect_state);
+	return get_connect_state(&relay_board_com_info->connect_state);
 }
 
 static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board_com_info)
