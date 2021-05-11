@@ -34,6 +34,18 @@
 extern IWDG_HandleTypeDef hiwdg;
 extern TIM_HandleTypeDef htim3;
 
+static os_signal_t app_event = NULL;
+
+void app_init(void)
+{
+	app_event = signal_create(1);
+}
+
+void send_app_event(app_event_t event)
+{
+	signal_send(app_event, event, 0);
+}
+
 void app(void const *argument)
 {
 	channel_info_config_t *channel_info_config;
@@ -89,7 +101,18 @@ void app(void const *argument)
 	}
 
 	while(1) {
-		osDelay(1000);
+		uint32_t event;
+		int ret = signal_wait(app_event, &event, 1000);
+
+		if(ret == 0) {
+			switch(event) {
+				default: {
+				}
+				break;
+			}
+		}
+
+		//handle_open_log();
 	}
 }
 

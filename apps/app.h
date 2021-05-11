@@ -25,6 +25,13 @@ extern "C"
 #define VER_REV 0
 #define VER_BUILD 0
 
+typedef enum {
+	APP_EVENT_NONE = 0,
+	APP_EVENT_USB,
+} app_event_t;
+
+void app_init(void);
+void send_app_event(app_event_t event);
 void app(void const *argument);
 void idle(void const *argument);
 #endif //_APP_H
