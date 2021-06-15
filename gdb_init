@@ -59,11 +59,15 @@ b app
 #		c
 #	end
 
-b log_uart_data
+b dummy_log
 	commands
-		p (char *)data
+		silent
+		printf "%s\n", buffer
 		c
 	end
 
-monitor reset
+b app_panic
+
+
+#monitor reset
 continue

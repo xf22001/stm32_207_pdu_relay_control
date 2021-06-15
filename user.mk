@@ -6,7 +6,7 @@
 #   文件名称：user.mk
 #   创 建 者：肖飞
 #   创建日期：2019年10月25日 星期五 13时04分38秒
-#   修改日期：2021年04月13日 星期二 17时09分21秒
+#   修改日期：2021年06月15日 星期二 11时54分48秒
 #   描    述：
 #
 #================================================================
@@ -73,13 +73,13 @@ ifeq ("$(origin APP)", "command line")
 build-type := .app.stamps
 build-type-invalid := .bootloader.stamps
 CFLAGS += -DUSER_APP
-LDSCRIPT = STM32F407VETx_FLASH_APP.ld
+LDSCRIPT = STM32F207VETx_FLASH_APP.ld
 #$(info $(shell $(update-iap-include)))
 $(info "build app!")
 else
 build-type := .bootloader.stamps
 build-type-invalid := .app.stamps
-LDSCRIPT = STM32F407VETx_FLASH.ld
+LDSCRIPT = STM32F207VETx_FLASH.ld
 #$(info $(shell $(update-iap-include)))
 $(info "build bootloader!")
 endif
