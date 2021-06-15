@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年04月13日 星期二 17时45分37秒
+ *   修改日期：2021年06月15日 星期二 15时16分04秒
  *   描    述：
  *
  *================================================================*/
@@ -23,7 +23,7 @@
 
 #include "relay_board_command.h"
 
-//#define LOG_NONE
+#define LOG_DISABLE
 #include "log.h"
 
 typedef struct {
@@ -598,7 +598,7 @@ static int relay_board_com_info_set_channel_config(relay_board_com_info_t *relay
 	debug("can_info->can_config->filter_id:%08x", can_info->can_config->filter_id);
 	debug("can_info->can_config->filter_mask_id:%08x", can_info->can_config->filter_mask_id);
 
-	can_info->receive_init(can_info->hcan);
+	can_info->receive_init(can_info);
 
 	relay_board_com_info->can_info = can_info;
 

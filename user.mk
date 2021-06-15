@@ -41,9 +41,9 @@ USER_C_SOURCES += apps/modules/os/event_helper.c
 USER_C_SOURCES += apps/modules/os/callback_chain.c
 USER_C_SOURCES += apps/modules/os/bitmap_ops.c
 USER_C_SOURCES += apps/modules/os/iap.c
-USER_C_SOURCES += apps/modules/os/object_class.c
-USER_C_SOURCES += apps/modules/os/log.c
 USER_C_SOURCES += apps/modules/os/os_utils.c
+USER_C_SOURCES += apps/modules/os/log.c
+USER_C_SOURCES += apps/modules/os/object_class.c
 USER_C_SOURCES += apps/modules/tests/test_serial.c
 
 C_SOURCES += $(USER_C_SOURCES)
