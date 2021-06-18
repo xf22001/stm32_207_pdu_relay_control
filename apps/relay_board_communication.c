@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年06月16日 星期三 13时47分11秒
+ *   修改日期：2021年06月18日 星期五 16时26分52秒
  *   描    述：
  *
  *================================================================*/
@@ -103,7 +103,7 @@ static int prepare_tx_request(relay_board_com_info_t *relay_board_com_info, uint
 	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = can_com_prepare_tx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
+	ret = can_com_prepare_tx_request(cmd_ctx, can_com_cmd_common, data, data_size);
 
 	return ret;
 }
@@ -115,7 +115,7 @@ static int process_rx_response(relay_board_com_info_t *relay_board_com_info, uin
 	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_rx_msg->Data;
 
-	ret = can_com_process_rx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
+	ret = can_com_process_rx_response(cmd_ctx, can_com_cmd_response, data_size);
 
 	return ret;
 }
@@ -127,7 +127,7 @@ static int prepare_tx_response(relay_board_com_info_t *relay_board_com_info, uin
 	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = can_com_prepare_tx_response(cmd_ctx, can_com_cmd_response, cmd, data_size);
+	ret = can_com_prepare_tx_response(cmd_ctx, can_com_cmd_response, data_size);
 
 	return ret;
 }
@@ -139,7 +139,7 @@ static int process_rx_request(relay_board_com_info_t *relay_board_com_info, uint
 	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + cmd;
 	can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_rx_msg->Data;
 
-	ret = can_com_process_rx_request(cmd_ctx, can_com_cmd_common, cmd, data, data_size);
+	ret = can_com_process_rx_request(cmd_ctx, can_com_cmd_common, data, data_size);
 
 	return ret;
 }
