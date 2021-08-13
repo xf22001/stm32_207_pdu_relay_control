@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2021年02月01日 星期一 14时59分53秒
+ *   修改日期：2021年08月12日 星期四 09时10分20秒
  *   描    述：
  *
  *================================================================*/
@@ -14,12 +14,9 @@
 
 #include <string.h>
 
-#include "app_platform.h"
-#include "cmsis_os.h"
 #include "main.h"
 #include "iwdg.h"
 #include "os_utils.h"
-#include "usart_txrx.h"
 #include "uart_debug.h"
 #include "test_serial.h"
 #include "relay_board.h"
@@ -50,30 +47,15 @@ void app(void const *argument)
 {
 	channel_info_config_t *channel_info_config;
 
-	add_log_handler((log_fn_t)log_uart_data);
-
-	channel_info_config = get_channel_info_config(0);
-
 	HAL_GPIO_WritePin(usart_con_GPIO_Port, usart_con_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(led_fault_GPIO_Port, led_fault_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(led_can_GPIO_Port, led_can_Pin, GPIO_PIN_SET);
 
-	if(channel_info_config == NULL) {
-		app_panic();
-	}
+	channel_info_config = get_channel_info_config(0);
+	OS_ASSERT(channel_info_config != NULL);
 
-	{
-		uart_info_t *uart_info = get_or_alloc_uart_info(channel_info_config->huart_debug);
-
-		if(uart_info == NULL) {
-			app_panic();
-		}
-
-		set_log_uart_info(uart_info);
-
-		osThreadDef(uart_debug, task_uart_debug, osPriorityNormal, 0, 128 * 2 * 2);
-		osThreadCreate(osThread(uart_debug), uart_info);
-	}
+	get_or_alloc_uart_debug_info(channel_info_config->huart_debug);
+	add_log_handler((log_fn_t)log_uart_data);
 
 	debug("===========================================start app============================================");
 
@@ -94,10 +76,7 @@ void app(void const *argument)
 
 	{
 		relay_board_com_info_t *relay_board_com_info = get_or_alloc_relay_board_com_info(channel_info_config);
-
-		if(relay_board_com_info == NULL) {
-			app_panic();
-		}
+		OS_ASSERT(relay_board_com_info != NULL);
 	}
 
 	while(1) {
