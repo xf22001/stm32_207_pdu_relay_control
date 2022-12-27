@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2021年06月18日 星期五 16时26分52秒
+ *   修改日期：2022年09月20日 星期二 13时43分03秒
  *   描    述：
  *
  *================================================================*/
@@ -330,7 +330,7 @@ static command_item_t command_item_relay_board_status = {
 
 
 static command_item_t *relay_board_com_command_table[] = {
-	//&command_item_relay_board_heartbeat,
+	&command_item_relay_board_heartbeat,
 	&command_item_relay_boards_heartbeat,
 	&command_item_relay_board_config,
 	&command_item_relay_board_status,
@@ -362,7 +362,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 		command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
 
 		if(cmd_ctx->state == COMMAND_STATE_RESPONSE) {
-			if(ticks_duration(ticks, cmd_ctx->send_stamp) >= RESPONSE_TIMEOUT) {//超时
+			if(ticks_duration(ticks, cmd_ctx->stamp) >= RESPONSE_TIMEOUT) {//超时
 				relay_board_com_set_connect_state(relay_board_com_info, 0);
 				debug("cmd %d(%s) index %d timeout, connect state:%d",
 				      item->cmd,
@@ -414,12 +414,13 @@ static void flicker_can_led(uint8_t live)
 
 static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info)
 {
+	static int cmd_index = 0;
 	int ret = 0;
 	int i;
 
-	for(i = 0; i < ARRAY_SIZE(relay_board_com_command_table); i++) {
+	for(i = 0; i < ARRAY_SIZE(relay_board_com_command_table); i++, cmd_index = (cmd_index + 1) % ARRAY_SIZE(relay_board_com_command_table)) {
 		uint32_t ticks = osKernelSysTick();
-		command_item_t *item = relay_board_com_command_table[i];
+		command_item_t *item = relay_board_com_command_table[cmd_index];
 		command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
 		can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
 		u_com_can_tx_id_t *u_com_can_tx_id = (u_com_can_tx_id_t *)&relay_board_com_info->can_tx_msg.ExtId;
@@ -456,7 +457,7 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 			continue;
 		}
 
-		cmd_ctx->send_stamp = ticks;
+		cmd_ctx->stamp = ticks;
 
 		ret = can_tx_data(relay_board_com_info->can_info, &relay_board_com_info->can_tx_msg, 10);
 
@@ -466,6 +467,8 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 			debug("send request cmd %d(%s) error!", item->cmd, get_relay_board_cmd_des(item->cmd));
 			relay_board_com_set_connect_state(relay_board_com_info, 0);
 		}
+
+		break;
 	}
 }
 
