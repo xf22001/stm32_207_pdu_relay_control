@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2022年12月28日 星期三 13时39分18秒
+ *   修改日期：2022年12月28日 星期三 14时24分38秒
  *   描    述：
  *
  *================================================================*/
@@ -433,6 +433,17 @@ static void relay_board_com_response(relay_board_com_info_t *relay_board_com_inf
 	relay_board_com_info->can_rx_msg = can_get_msg(relay_board_com_info->can_info);
 
 	u_com_can_id = (u_com_can_id_t *)&relay_board_com_info->can_rx_msg->ExtId;
+
+	//debug("rx extid:0x%08x, data:%02x %02x %02x %02x %02x %02x %02x %02x\n",
+	//      relay_board_com_info->can_rx_msg->ExtId,
+	//      relay_board_com_info->can_rx_msg->Data[0],
+	//      relay_board_com_info->can_rx_msg->Data[1],
+	//      relay_board_com_info->can_rx_msg->Data[2],
+	//      relay_board_com_info->can_rx_msg->Data[3],
+	//      relay_board_com_info->can_rx_msg->Data[4],
+	//      relay_board_com_info->can_rx_msg->Data[5],
+	//      relay_board_com_info->can_rx_msg->Data[6],
+	//      relay_board_com_info->can_rx_msg->Data[7]);
 
 	if(relay_board_id != u_com_can_id->s.dst_id) {
 		debug("relay_board_id:%d, u_com_can_id->s.dst_id:%d", relay_board_id, u_com_can_id->s.dst_id);
