@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2022年12月28日 星期三 13时19分00秒
+ *   修改日期：2022年12月28日 星期三 13时39分18秒
  *   描    述：
  *
  *================================================================*/
@@ -386,9 +386,10 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 		//osDelay(5);
 
 		u_com_can_id->v = 0;
+		u_com_can_id->s.type = PROXY_TYPE_RELAY_BOARD;
 		u_com_can_id->s.flag = PROXY_FLAG;
-		u_com_can_id->s.dst_id = PROXY_ADDR_REMOTE;
 		u_com_can_id->s.src_id = get_relay_board_id();
+		u_com_can_id->s.dst_id = PROXY_ADDR_REMOTE;
 
 		relay_board_com_info->can_tx_msg.IDE = CAN_ID_EXT;
 		relay_board_com_info->can_tx_msg.RTR = CAN_RTR_DATA;
@@ -537,17 +538,17 @@ static int relay_board_com_info_set_channel_config(relay_board_com_info_t *relay
 	com_can_id = (com_can_id_t *)&can_info->can_config->filter_id;
 	com_can_mask_id = (com_can_id_t *)&can_info->can_config->filter_mask_id;
 
-	com_can_id->dst_id = get_relay_board_id();
-	com_can_mask_id->dst_id = 0xff;
+	com_can_id->type = PROXY_TYPE_RELAY_BOARD;
+	com_can_mask_id->type = 0xff;
+
+	com_can_id->flag = PROXY_FLAG;
+	com_can_mask_id->flag = 0x1f;
 
 	com_can_id->src_id = PROXY_ADDR_REMOTE;
 	com_can_mask_id->src_id = 0xff;
 
-	com_can_id->type = 0x03;
-	com_can_mask_id->type = 0xff;
-
-	com_can_id->flag = 0x15;
-	com_can_mask_id->flag = 0x1f;
+	com_can_id->dst_id = get_relay_board_id();
+	com_can_mask_id->dst_id = 0xff;
 
 	debug("can_info->can_config->filter_id:%08x", can_info->can_config->filter_id);
 	debug("can_info->can_config->filter_mask_id:%08x", can_info->can_config->filter_mask_id);
