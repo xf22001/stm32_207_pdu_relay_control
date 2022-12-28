@@ -16,7 +16,6 @@
 
 #include "main.h"
 
-#define LOG_UART
 #include "log.h"
 
 extern ADC_HandleTypeDef hadc1;

@@ -6,7 +6,7 @@
  *   文件名称：app.c
  *   创 建 者：肖飞
  *   创建日期：2019年10月11日 星期五 16时54分03秒
- *   修改日期：2021年08月10日 星期二 10时24分49秒
+ *   修改日期：2022年12月28日 星期三 10时47分05秒
  *   描    述：
  *
  *================================================================*/
@@ -33,14 +33,25 @@ extern TIM_HandleTypeDef htim3;
 
 static os_signal_t app_event = NULL;
 
-void app_init(void)
+static void app_event_init(size_t size)
 {
-	app_event = signal_create(1);
+	if(app_event != NULL) {
+		return;
+	}
+
+	app_event = signal_create(size);
+	OS_ASSERT(app_event != NULL);
 }
 
-void send_app_event(app_event_t event)
+void app_init(void)
 {
-	signal_send(app_event, event, 0);
+	app_event_init(10);
+	mem_info_init();
+}
+
+void send_app_event(app_event_t event, uint32_t timeout)
+{
+	signal_send(app_event, event, timeout);
 }
 
 void app(void const *argument)
@@ -54,8 +65,8 @@ void app(void const *argument)
 	channel_info_config = get_channel_info_config(0);
 	OS_ASSERT(channel_info_config != NULL);
 
-	get_or_alloc_uart_debug_info(channel_info_config->huart_debug);
-	add_log_handler((log_fn_t)log_uart_data);
+	//get_or_alloc_uart_debug_info(channel_info_config->huart_debug);
+	//add_log_handler((log_fn_t)log_uart_data);
 
 	debug("===========================================start app============================================");
 

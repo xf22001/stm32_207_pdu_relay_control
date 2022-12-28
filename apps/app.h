@@ -33,7 +33,7 @@ typedef enum {
 } app_event_t;
 
 void app_init(void);
-void send_app_event(app_event_t event);
+void send_app_event(app_event_t event, uint32_t timeout);
 void app(void const *argument);
 void idle(void const *argument);
 #endif //_APP_H

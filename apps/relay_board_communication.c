@@ -6,7 +6,7 @@
  *   文件名称：relay_board_communication.c
  *   创 建 者：肖飞
  *   创建日期：2020年07月06日 星期一 17时08分54秒
- *   修改日期：2022年09月20日 星期二 13时43分03秒
+ *   修改日期：2022年12月28日 星期三 13时19分00秒
  *   描    述：
  *
  *================================================================*/
@@ -21,62 +21,13 @@
 #include "relay_board.h"
 #include "can_data_task.h"
 
-#include "relay_board_command.h"
+#include "proxy.h"
+#include "relay_boards_comm_proxy.h"
 
 #define LOG_NONE
 #include "log.h"
 
-typedef struct {
-	uint32_t src_id : 8;//src
-	uint32_t dst_id : 8;//dest 0xff
-	uint32_t unused : 8;
-	uint32_t flag : 5;//0x12
-	uint32_t unused1 : 3;
-} com_can_tx_id_t;
-
-typedef union {
-	com_can_tx_id_t s;
-	uint32_t v;
-} u_com_can_tx_id_t;
-
-typedef struct {
-	uint32_t dst_id : 8;//dest 0xff
-	uint32_t src_id : 8;//src
-	uint32_t unused : 8;
-	uint32_t flag : 5;//0x12
-	uint32_t unused1 : 3;
-} com_can_rx_id_t;
-
-typedef union {
-	com_can_rx_id_t s;
-	uint32_t v;
-} u_com_can_rx_id_t;
-
 #define RESPONSE_TIMEOUT 300
-
-#define add_des_case(e) \
-	case e: { \
-		des = #e; \
-	} \
-	break
-
-static char *get_relay_board_cmd_des(relay_board_cmd_t cmd)
-{
-	char *des = "unknow";
-
-	switch(cmd) {
-			add_des_case(RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT);
-			add_des_case(RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT);
-			add_des_case(RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG);
-			add_des_case(RELAY_BOARD_CMD_RELAY_BOARD_STATUS);
-
-		default: {
-		}
-		break;
-	}
-
-	return des;
-}
 
 typedef struct {
 	//data buffer
@@ -158,7 +109,7 @@ static int request_relay_board_heartbeat(relay_board_com_info_t *relay_board_com
 {
 	int ret = -1;
 
-	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + relay_boards_comm_proxy_command_enum(RELAY_BOARD_HEARTBEAT);
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	if(cmd_ctx->index == 0) {
@@ -170,7 +121,7 @@ static int request_relay_board_heartbeat(relay_board_com_info_t *relay_board_com
 	}
 
 	ret = prepare_tx_request(relay_board_com_info,
-	                         RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
+	                         relay_boards_comm_proxy_command_enum(RELAY_BOARD_HEARTBEAT),
 	                         (uint8_t *)&data_ctx->relay_board_heartbeat,
 	                         sizeof(relay_board_heartbeat_t));
 
@@ -182,14 +133,14 @@ static int response_relay_board_heartbeat(relay_board_com_info_t *relay_board_co
 	int ret = -1;
 
 	ret = process_rx_response(relay_board_com_info,
-	                          RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
+	                          relay_boards_comm_proxy_command_enum(RELAY_BOARD_HEARTBEAT),
 	                          sizeof(relay_board_heartbeat_t));
 
 	return ret;
 }
 
 static command_item_t command_item_relay_board_heartbeat = {
-	.cmd = RELAY_BOARD_CMD_RELAY_BOARD_HEARTBEAT,
+	.cmd = relay_boards_comm_proxy_command_enum(RELAY_BOARD_HEARTBEAT),
 	.request_period = 500,
 	.request_callback = request_relay_board_heartbeat,
 	.response_callback = response_relay_board_heartbeat,
@@ -201,7 +152,7 @@ static int request_relay_boards_heartbeat(relay_board_com_info_t *relay_board_co
 	//data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = prepare_tx_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT, sizeof(relay_boards_heartbeat_t));
+	ret = prepare_tx_response(relay_board_com_info, relay_boards_comm_proxy_command_enum(RELAY_BOARDS_HEARTBEAT), sizeof(relay_boards_heartbeat_t));
 
 	if(can_com_cmd_response->response_status == CAN_COM_RESPONSE_STATUS_DONE) {
 		//int i;
@@ -227,7 +178,7 @@ static int response_relay_boards_heartbeat(relay_board_com_info_t *relay_board_c
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	ret = process_rx_request(relay_board_com_info,
-	                         RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT,
+	                         relay_boards_comm_proxy_command_enum(RELAY_BOARDS_HEARTBEAT),
 	                         (uint8_t *)&data_ctx->relay_boards_heartbeat,
 	                         sizeof(relay_boards_heartbeat_t));
 
@@ -235,7 +186,7 @@ static int response_relay_boards_heartbeat(relay_board_com_info_t *relay_board_c
 }
 
 static command_item_t command_item_relay_boards_heartbeat = {
-	.cmd = RELAY_BOARD_CMD_RELAY_BOARDS_HEARTBEAT,
+	.cmd = relay_boards_comm_proxy_command_enum(RELAY_BOARDS_HEARTBEAT),
 	.request_period = 0,
 	.request_callback = request_relay_boards_heartbeat,
 	.response_callback = response_relay_boards_heartbeat,
@@ -247,7 +198,7 @@ static int request_relay_board_config(relay_board_com_info_t *relay_board_com_in
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 	can_com_cmd_response_t *can_com_cmd_response = (can_com_cmd_response_t *)relay_board_com_info->can_tx_msg.Data;
 
-	ret = prepare_tx_response(relay_board_com_info, RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG, sizeof(relay_board_config_t));
+	ret = prepare_tx_response(relay_board_com_info, relay_boards_comm_proxy_command_enum(RELAY_BOARDS_CONFIG), sizeof(relay_board_config_t));
 
 	if(can_com_cmd_response->response_status == CAN_COM_RESPONSE_STATUS_DONE) {
 		relay_board_config_t *relay_board_config = (relay_board_config_t *)&data_ctx->relay_board_config;
@@ -264,7 +215,7 @@ static int response_relay_board_config(relay_board_com_info_t *relay_board_com_i
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	ret = process_rx_request(relay_board_com_info,
-	                         RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG,
+	                         relay_boards_comm_proxy_command_enum(RELAY_BOARDS_CONFIG),
 	                         (uint8_t *)&data_ctx->relay_board_config,
 	                         sizeof(relay_board_config_t));
 
@@ -272,7 +223,7 @@ static int response_relay_board_config(relay_board_com_info_t *relay_board_com_i
 }
 
 static command_item_t command_item_relay_board_config = {
-	.cmd = RELAY_BOARD_CMD_RELAY_BOARDS_CONFIG,
+	.cmd = relay_boards_comm_proxy_command_enum(RELAY_BOARDS_CONFIG),
 	.request_period = 0,
 	.request_callback = request_relay_board_config,
 	.response_callback = response_relay_board_config,
@@ -282,7 +233,7 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 {
 	int ret = -1;
 
-	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + RELAY_BOARD_CMD_RELAY_BOARD_STATUS;
+	command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + relay_boards_comm_proxy_command_enum(RELAY_BOARD_STATUS);
 	data_ctx_t *data_ctx = (data_ctx_t *)relay_board_com_info->relay_board_com_data_ctx;
 
 	if(cmd_ctx->index == 0) {
@@ -295,15 +246,15 @@ static int request_relay_board_status(relay_board_com_info_t *relay_board_com_in
 		relay_board_status->fault.fault = relay_board_get_status();
 		relay_board_status->fault.over_temperature = (relay_board_status->temperature1 >= 75) ? 1 : 0;
 
-		debug("relay_board_status->config:%08x", u8_bin(relay_board_status->config));
-		debug("relay_board_status->temperature1:%d", relay_board_status->temperature1);
-		debug("relay_board_status->temperature2:%d", relay_board_status->temperature2);
-		debug("relay_board_status->fault.fault:%d", relay_board_status->fault.fault);
-		debug("relay_board_status->fault.over_temperature:%d", relay_board_status->fault.over_temperature);
+		//debug("relay_board_status->config:%08x", u8_bin(relay_board_status->config));
+		//debug("relay_board_status->temperature1:%d", relay_board_status->temperature1);
+		//debug("relay_board_status->temperature2:%d", relay_board_status->temperature2);
+		//debug("relay_board_status->fault.fault:%d", relay_board_status->fault.fault);
+		//debug("relay_board_status->fault.over_temperature:%d", relay_board_status->fault.over_temperature);
 	}
 
 	ret = prepare_tx_request(relay_board_com_info,
-	                         RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
+	                         relay_boards_comm_proxy_command_enum(RELAY_BOARD_STATUS),
 	                         (uint8_t *)&data_ctx->relay_board_status,
 	                         sizeof(relay_board_status_t));
 
@@ -315,14 +266,14 @@ static int response_relay_board_status(relay_board_com_info_t *relay_board_com_i
 	int ret = -1;
 
 	ret = process_rx_response(relay_board_com_info,
-	                          RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
+	                          relay_boards_comm_proxy_command_enum(RELAY_BOARD_STATUS),
 	                          sizeof(relay_board_status_t));
 
 	return ret;
 }
 
 static command_item_t command_item_relay_board_status = {
-	.cmd = RELAY_BOARD_CMD_RELAY_BOARD_STATUS,
+	.cmd = relay_boards_comm_proxy_command_enum(RELAY_BOARD_STATUS),
 	.request_period = 500,
 	.request_callback = request_relay_board_status,
 	.response_callback = response_relay_board_status,
@@ -366,7 +317,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 				relay_board_com_set_connect_state(relay_board_com_info, 0);
 				debug("cmd %d(%s) index %d timeout, connect state:%d",
 				      item->cmd,
-				      get_relay_board_cmd_des(item->cmd),
+				      get_relay_boards_comm_proxy_command_des(item->cmd),
 				      cmd_ctx->index,
 				      relay_board_com_get_connect_state(relay_board_com_info));
 				cmd_ctx->state = COMMAND_STATE_REQUEST;
@@ -388,7 +339,7 @@ static void relay_board_com_request_periodic(relay_board_com_info_t *relay_board
 		if(ticks_duration(ticks, cmd_ctx->stamp) >= item->request_period) {
 			cmd_ctx->stamp = ticks;
 
-			//debug("start cmd %d(%s)", item->cmd, get_relay_board_cmd_des(item->cmd));
+			//debug("start cmd %d(%s)", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd));
 			cmd_ctx->index = 0;
 			cmd_ctx->state = COMMAND_STATE_REQUEST;
 		}
@@ -423,7 +374,7 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 		command_item_t *item = relay_board_com_command_table[cmd_index];
 		command_status_t *cmd_ctx = relay_board_com_info->cmd_ctx + item->cmd;
 		can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_tx_msg.Data;
-		u_com_can_tx_id_t *u_com_can_tx_id = (u_com_can_tx_id_t *)&relay_board_com_info->can_tx_msg.ExtId;
+		u_com_can_id_t *u_com_can_id = (u_com_can_id_t *)&relay_board_com_info->can_tx_msg.ExtId;
 
 		flicker_can_led(0);
 		relay_board_com_request_periodic(relay_board_com_info);
@@ -434,16 +385,16 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 
 		//osDelay(5);
 
-		u_com_can_tx_id->v = 0;
-		u_com_can_tx_id->s.flag = 0x12;
-		u_com_can_tx_id->s.dst_id = 0xff;
-		u_com_can_tx_id->s.src_id = get_relay_board_id();
+		u_com_can_id->v = 0;
+		u_com_can_id->s.flag = PROXY_FLAG;
+		u_com_can_id->s.dst_id = PROXY_ADDR_REMOTE;
+		u_com_can_id->s.src_id = get_relay_board_id();
 
 		relay_board_com_info->can_tx_msg.IDE = CAN_ID_EXT;
 		relay_board_com_info->can_tx_msg.RTR = CAN_RTR_DATA;
 		relay_board_com_info->can_tx_msg.DLC = 8;
 
-		//debug("request cmd %d(%s), index:%d", item->cmd, get_relay_board_cmd_des(item->cmd), can_com_cmd_common->index);
+		//debug("request cmd %d(%s), index:%d", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd), can_com_cmd_common->index);
 
 		memset(relay_board_com_info->can_tx_msg.Data, 0, 8);
 
@@ -453,7 +404,7 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 		ret = item->request_callback(relay_board_com_info);
 
 		if(ret != 0) {
-			debug("process request cmd %d(%s) error!", item->cmd, get_relay_board_cmd_des(item->cmd));
+			debug("process request cmd %d(%s) error!", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd));
 			continue;
 		}
 
@@ -462,9 +413,7 @@ static void relay_board_com_request(relay_board_com_info_t *relay_board_com_info
 		ret = can_tx_data(relay_board_com_info->can_info, &relay_board_com_info->can_tx_msg, 10);
 
 		if(ret != 0) {//发送失败
-			cmd_ctx->state = COMMAND_STATE_REQUEST;
-
-			debug("send request cmd %d(%s) error!", item->cmd, get_relay_board_cmd_des(item->cmd));
+			debug("send request cmd %d(%s) error!", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd));
 			relay_board_com_set_connect_state(relay_board_com_info, 0);
 		}
 
@@ -478,14 +427,14 @@ static void relay_board_com_response(relay_board_com_info_t *relay_board_com_inf
 	int i;
 	uint8_t relay_board_id = get_relay_board_id();
 
-	u_com_can_rx_id_t *u_com_can_rx_id;
+	u_com_can_id_t *u_com_can_id;
 
 	relay_board_com_info->can_rx_msg = can_get_msg(relay_board_com_info->can_info);
 
-	u_com_can_rx_id = (u_com_can_rx_id_t *)&relay_board_com_info->can_rx_msg->ExtId;
+	u_com_can_id = (u_com_can_id_t *)&relay_board_com_info->can_rx_msg->ExtId;
 
-	if(relay_board_id != u_com_can_rx_id->s.src_id) {
-		debug("relay_board_id:%d, u_com_can_rx_id->s.src_id:%d", relay_board_id, u_com_can_rx_id->s.src_id);
+	if(relay_board_id != u_com_can_id->s.dst_id) {
+		debug("relay_board_id:%d, u_com_can_id->s.dst_id:%d", relay_board_id, u_com_can_id->s.dst_id);
 		return;
 	}
 
@@ -494,7 +443,7 @@ static void relay_board_com_response(relay_board_com_info_t *relay_board_com_inf
 		can_com_cmd_common_t *can_com_cmd_common = (can_com_cmd_common_t *)relay_board_com_info->can_rx_msg->Data;
 
 		if(can_com_cmd_common->cmd == item->cmd) {
-			//debug("response cmd %d(%s), index:%d", item->cmd, get_relay_board_cmd_des(item->cmd), can_com_cmd_common->index);
+			//debug("response cmd %d(%s), index:%d", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd), can_com_cmd_common->index);
 
 			flicker_can_led(1);
 			relay_board_com_set_connect_state(relay_board_com_info, 1);
@@ -502,7 +451,7 @@ static void relay_board_com_response(relay_board_com_info_t *relay_board_com_inf
 			ret = item->response_callback(relay_board_com_info);
 
 			if(ret != 0) {//收到响应
-				debug("process response cmd %d(%s) error!", item->cmd, get_relay_board_cmd_des(item->cmd));
+				debug("process response cmd %d(%s) error!", item->cmd, get_relay_boards_comm_proxy_command_des(item->cmd));
 			}
 
 			break;
@@ -560,49 +509,45 @@ static int relay_board_com_info_set_channel_config(relay_board_com_info_t *relay
 	can_info_t *can_info;
 	command_status_t *cmd_ctx;
 	data_ctx_t *data_ctx;
-	com_can_rx_id_t *com_can_rx_id;
-	com_can_rx_id_t *com_can_rx_mask_id;
+	com_can_id_t *com_can_id;
+	com_can_id_t *com_can_mask_id;
 	can_data_task_info_t *can_data_task_info;
+	int i;
 
-	cmd_ctx = (command_status_t *)os_alloc(sizeof(command_status_t) * RELAY_BOARD_CMD_TOTAL);
+	cmd_ctx = (command_status_t *)os_alloc(sizeof(command_status_t) * relay_boards_comm_proxy_command_enum(SIZE));
+	OS_ASSERT(cmd_ctx != NULL);
 
-	if(cmd_ctx == NULL) {
-		return ret;
-	}
-
-	memset(cmd_ctx, 0, sizeof(command_status_t) * RELAY_BOARD_CMD_TOTAL);
+	memset(cmd_ctx, 0, sizeof(command_status_t) * relay_boards_comm_proxy_command_enum(SIZE));
 
 	relay_board_com_info->cmd_ctx = cmd_ctx;
 
-	relay_board_com_info->cmd_ctx[RELAY_BOARD_CMD_RELAY_BOARD_STATUS].available = 1;
-
-	data_ctx = (data_ctx_t *)os_alloc(sizeof(data_ctx_t));
-
-	if(data_ctx == NULL) {
-		return ret;
+	for(i = 0; i < relay_boards_comm_proxy_command_enum(SIZE); i++) {
+		relay_board_com_info->cmd_ctx[i].available = 1;
 	}
 
+	data_ctx = (data_ctx_t *)os_alloc(sizeof(data_ctx_t));
+	OS_ASSERT(data_ctx != NULL);
 	memset(data_ctx, 0, sizeof(data_ctx_t));
 
 	relay_board_com_info->relay_board_com_data_ctx = data_ctx;
 
 	can_info = get_or_alloc_can_info(channel_info_config->hcan_com);
+	OS_ASSERT(can_info != NULL);
 
-	if(can_info == NULL) {
-		return ret;
-	}
+	com_can_id = (com_can_id_t *)&can_info->can_config->filter_id;
+	com_can_mask_id = (com_can_id_t *)&can_info->can_config->filter_mask_id;
 
-	com_can_rx_id = (com_can_rx_id_t *)&can_info->can_config->filter_id;
-	com_can_rx_mask_id = (com_can_rx_id_t *)&can_info->can_config->filter_mask_id;
+	com_can_id->dst_id = get_relay_board_id();
+	com_can_mask_id->dst_id = 0xff;
 
-	com_can_rx_id->src_id = get_relay_board_id();
-	com_can_rx_mask_id->src_id = 0xff;
+	com_can_id->src_id = PROXY_ADDR_REMOTE;
+	com_can_mask_id->src_id = 0xff;
 
-	com_can_rx_id->dst_id = 0xff;
-	com_can_rx_mask_id->dst_id = 0xff;
+	com_can_id->type = 0x03;
+	com_can_mask_id->type = 0xff;
 
-	com_can_rx_id->flag = 0x12;
-	com_can_rx_mask_id->flag = 0x1f;
+	com_can_id->flag = 0x15;
+	com_can_mask_id->flag = 0x1f;
 
 	debug("can_info->can_config->filter_id:%08x", can_info->can_config->filter_id);
 	debug("can_info->can_config->filter_mask_id:%08x", can_info->can_config->filter_mask_id);
@@ -612,10 +557,7 @@ static int relay_board_com_info_set_channel_config(relay_board_com_info_t *relay
 	relay_board_com_info->can_info = can_info;
 
 	can_data_task_info = get_or_alloc_can_data_task_info(relay_board_com_info->can_info->hcan);
-
-	if(can_data_task_info == NULL) {
-		app_panic();
-	}
+	OS_ASSERT(can_data_task_info != NULL);
 
 	relay_board_com_info->can_data_request_cb.fn = can_data_request;
 	relay_board_com_info->can_data_request_cb.fn_ctx = relay_board_com_info;
@@ -634,25 +576,10 @@ relay_board_com_info_t *alloc_relay_board_com_info(channel_info_config_t *channe
 	relay_board_com_info_t *relay_board_com_info = NULL;
 
 	relay_board_com_info = (relay_board_com_info_t *)os_alloc(sizeof(relay_board_com_info_t));
-
-	if(relay_board_com_info == NULL) {
-		return relay_board_com_info;
-	}
-
+	OS_ASSERT(relay_board_com_info != NULL);
 	memset(relay_board_com_info, 0, sizeof(relay_board_com_info_t));
-
 	relay_board_com_info->channel_info_config = channel_info_config;
-
-	if(relay_board_com_info_set_channel_config(relay_board_com_info, channel_info_config) != 0) {
-		goto failed;
-	}
-
-	return relay_board_com_info;
-failed:
-
-	free_relay_board_com_info(relay_board_com_info);
-
-	relay_board_com_info = NULL;
+	OS_ASSERT(relay_board_com_info_set_channel_config(relay_board_com_info, channel_info_config) == 0);
 
 	return relay_board_com_info;
 }
